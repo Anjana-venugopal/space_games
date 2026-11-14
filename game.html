@@ -1,0 +1,2747 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ASTRO-QUEST: ODYSSEY — NASA Space Systems & Discovery Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-display: 'Orbitron', sans-serif;
+      --font-sans: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    body {
+      font-family: var(--font-sans);
+      background-color: #050814;
+      color: #f1f5f9;
+      overflow-x: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-display { font-family: var(--font-display); }
+    .font-mono-tech { font-family: var(--font-mono); }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #090d1e; }
+    ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+
+    /* Pulsing & Glowing Animations */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 12px rgba(56, 189, 248, 0.35); }
+      50% { box-shadow: 0 0 24px rgba(56, 189, 248, 0.8); }
+    }
+    .glow-cyan { animation: pulseGlow 2.4s infinite ease-in-out; }
+
+    @keyframes redAlertPulse {
+      0%, 100% { box-shadow: inset 0 0 0px rgba(239, 68, 68, 0); }
+      50% { box-shadow: inset 0 0 45px rgba(239, 68, 68, 0.45); }
+    }
+    .alert-screen-pulse { animation: redAlertPulse 1.2s infinite ease-in-out; }
+
+    @keyframes moonBounce {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      25% { transform: translateY(-28px) rotate(-8deg); }
+      50% { transform: translateY(-36px) rotate(6deg); }
+      75% { transform: translateY(-18px) rotate(-4deg); }
+    }
+    .moon-dance-anim { animation: moonBounce 1.1s infinite ease-in-out; }
+
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+    .float-slow { animation: floatSlow 3.2s infinite ease-in-out; }
+
+    /* Glass Panels */
+    .space-panel {
+      background: rgba(13, 20, 40, 0.86);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(96, 165, 250, 0.28);
+    }
+    .space-panel-gold {
+      background: rgba(20, 24, 48, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(251, 191, 36, 0.45);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative">
+
+  <!-- BACKGROUND STARFIELD CANVAS -->
+  <canvas id="bgStarCanvas" class="fixed inset-0 pointer-events-none z-0"></canvas>
+
+  <!-- PERSISTENT TOP NAVIGATION & TELEMETRY RIBBON -->
+  <header class="relative z-30 space-panel border-b border-blue-500/30 px-3 py-2 sm:px-6">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <!-- Brand + Active Cadet Profile -->
+      <div class="flex items-center gap-3">
+        <button onclick="app.goHome()" class="flex items-center gap-2 text-left group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-900 flex items-center justify-center border border-cyan-400/50 shadow-md group-hover:scale-105 transition">
+            <span class="text-lg">🚀</span>
+          </div>
+          <div>
+            <div class="font-display font-bold text-sm sm:text-base tracking-wider text-cyan-300 flex items-center gap-1.5">
+              ASTRO-QUEST <span class="text-[10px] font-mono-tech bg-cyan-500/20 text-cyan-200 px-1.5 py-0.5 rounded border border-cyan-400/40">v3.0</span>
+            </div>
+            <div class="text-[11px] text-slate-400 hidden sm:block">NASA Systems Engineering & Discovery</div>
+          </div>
+        </button>
+
+        <!-- Cadet Avatar Pill -->
+        <div id="topCadetPill" onclick="app.openAvatarModal()" class="cursor-pointer flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700 transition">
+          <div id="topAvatarIcon" class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border border-white/40" style="background:#f59e0b">👩‍🚀</div>
+          <span id="topCadetName" class="text-xs font-semibold text-slate-200">Cadet Aria-1</span>
+        </div>
+      </div>
+
+      <!-- Mission Patches Ribbon (Mission: Astronaut Inspired) -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div id="patchBadge1" onclick="app.showPatchInfo(1)" class="cursor-pointer px-2.5 py-1 rounded-lg border text-xs font-display flex items-center gap-1.5 transition bg-slate-900/80 border-slate-700 text-slate-400" title="Artemis Lunar South Pole Patch">
+          <span>🌕</span>
+          <span class="hidden md:inline">ARTEMIS-I</span>
+          <span id="patchLock1" class="text-[10px]">🔒</span>
+        </div>
+        <div id="patchBadge2" onclick="app.showPatchInfo(2)" class="cursor-pointer px-2.5 py-1 rounded-lg border text-xs font-display flex items-center gap-1.5 transition bg-slate-900/80 border-slate-700 text-slate-400" title="TESS & JWST Exoplanet Patch">
+          <span>🪐</span>
+          <span class="hidden md:inline">EXO-TESS</span>
+          <span id="patchLock2" class="text-[10px]">🔒</span>
+        </div>
+        <div id="patchBadge3" onclick="app.showPatchInfo(3)" class="cursor-pointer px-2.5 py-1 rounded-lg border text-xs font-display flex items-center gap-1.5 transition bg-slate-900/80 border-slate-700 text-slate-400" title="Deep Space 1420 MHz & Astrobiology Patch">
+          <span>📡</span>
+          <span class="hidden md:inline">SETI-1420</span>
+          <span id="patchLock3" class="text-[10px]">🔒</span>
+        </div>
+      </div>
+
+      <!-- Stars Counter & Utility Controls -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/50 px-3 py-1 rounded-full">
+          <span class="text-amber-400 text-sm">✨</span>
+          <span id="topStarsCount" class="font-mono-tech font-bold text-sm text-amber-300">150</span>
+          <span class="text-[10px] text-amber-200/80 uppercase hidden sm:inline">Stars</span>
+        </div>
+
+        <button onclick="app.toggleTutorial()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs text-cyan-300 font-semibold px-2.5" title="How to Play">
+          ❓ Help
+        </button>
+        <button id="btnAudioToggle" onclick="sfx.toggleMute()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs" title="Toggle Synth Audio">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN DYNAMIC VIEWPORT -->
+  <main id="mainViewport" class="relative z-10 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 max-w-7xl w-full mx-auto">
+
+    <!-- ==========================================
+         SCREEN 1: ONBOARDING & HOME MENU
+    =========================================== -->
+    <section id="screenHome" class="w-full space-y-6">
+      <!-- Hero Banner -->
+      <div class="space-panel rounded-2xl p-6 sm:p-8 text-center relative overflow-hidden border border-cyan-500/40 shadow-2xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 text-xs font-mono-tech mb-3">
+          <span>🛰️ NASA SPACE APPS EDITION</span>
+          <span>•</span>
+          <span>REAL ENGINEERING & ASTROBIOLOGY</span>
+        </div>
+        <h1 class="font-display text-2xl sm:text-4xl md:text-5xl font-black tracking-wide text-white mb-3">
+          DARE TO ENGINEER & EXPLORE THE UNIVERSE
+        </h1>
+        <p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base">
+          Customize your astronaut, navigate inside and outside your spacecraft, solve authentic NASA life-support and attitude-control emergencies, and unlock real cosmic discoveries.
+        </p>
+
+        <!-- 4 Feature Pills (Mission: Astronaut Style) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6 text-left">
+          <div class="bg-slate-900/85 border border-cyan-500/30 rounded-xl p-3 flex items-center gap-3">
+            <div class="text-2xl bg-cyan-500/20 p-2 rounded-lg">👩‍🚀</div>
+            <div>
+              <div class="text-xs font-bold text-cyan-300">1. Customize Cadet</div>
+              <div class="text-[11px] text-slate-400">Suit color, visor & callsign</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/85 border border-emerald-500/30 rounded-xl p-3 flex items-center gap-3">
+            <div class="text-2xl bg-emerald-500/20 p-2 rounded-lg">🛠️</div>
+            <div>
+              <div class="text-xs font-bold text-emerald-300">2. Walk & Repair Ship</div>
+              <div class="text-[11px] text-slate-400">Among Us-style 2D cabin + EVA</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/85 border border-amber-500/30 rounded-xl p-3 flex items-center gap-3">
+            <div class="text-2xl bg-amber-500/20 p-2 rounded-lg">🤖</div>
+            <div>
+              <div class="text-xs font-bold text-amber-300">3. ARIA Co-Pilot</div>
+              <div class="text-[11px] text-slate-400">Physics hints & safe recovery</div>
+            </div>
+          </div>
+          <div class="bg-slate-900/85 border border-purple-500/30 rounded-xl p-3 flex items-center gap-3">
+            <div class="text-2xl bg-purple-500/20 p-2 rounded-lg">🏅</div>
+            <div>
+              <div class="text-xs font-bold text-purple-300">4. Earn Patches & Stars</div>
+              <div class="text-[11px] text-slate-400">Master real NASA science</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Column Entry Cards (Mission: Astronaut Layout) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Card 1: Customize Profile -->
+        <div class="space-panel rounded-2xl p-6 flex flex-col justify-between border-t-4 border-t-cyan-400 hover:translate-y-[-2px] transition">
+          <div>
+            <div class="text-xs font-mono-tech uppercase text-cyan-400 mb-1">STEP 1 • CADET LOCKER</div>
+            <h2 class="font-display text-lg font-bold text-white mb-2">Customize Astronaut Profile</h2>
+            <p class="text-xs text-slate-300 mb-4">
+              Choose your spacesuit color, telemetry visor tint, and mission callsign before boarding your spacecraft.
+            </p>
+          </div>
+          <button onclick="app.openAvatarModal()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-display font-bold text-sm shadow-lg transition">
+            CUSTOMIZE ASTRONAUT
+          </button>
+        </div>
+
+        <!-- Card 2: Enter Mission Selection -->
+        <div class="space-panel-gold rounded-2xl p-6 flex flex-col justify-between border-t-4 border-t-amber-400 hover:translate-y-[-2px] transition">
+          <div>
+            <div class="text-xs font-mono-tech uppercase text-amber-300 mb-1">MAIN CAMPAIGN • 3 MISSIONS</div>
+            <h2 class="font-display text-lg font-bold text-white mb-2">Launch Mission Control</h2>
+            <p class="text-xs text-slate-300 mb-4">
+              Embark on the 7-stage Lunar South Pole Odyssey, the Exoplanet TESS/JWST Lab, or the 1420 MHz Astrobiology Lab.
+            </p>
+          </div>
+          <button onclick="app.showScreen('screenMissionHub')" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-display font-bold text-sm shadow-lg transition">
+            PLAY NOW • SELECT MISSION
+          </button>
+        </div>
+
+        <!-- Card 3: Hackathon Judge Instant Unlock & Card Shop -->
+        <div class="space-panel rounded-2xl p-6 flex flex-col justify-between border-t-4 border-t-purple-400 hover:translate-y-[-2px] transition">
+          <div>
+            <div class="text-xs font-mono-tech uppercase text-purple-300 mb-1">COLLECTION & JUDGE TOOLS</div>
+            <h2 class="font-display text-lg font-bold text-white mb-2">Space Cards & Judge Mode</h2>
+            <p class="text-xs text-slate-300 mb-4">
+              Redeem your ✨ Stars for 3D-flipping NASA Heritage Collector Cards, or unlock all stages for immediate evaluation.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button onclick="app.showScreen('screenCards')" class="flex-1 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-display font-bold text-xs shadow-lg transition">
+              🃏 SPACE CARDS
+            </button>
+            <button onclick="app.unlockJudgeMode()" class="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-purple-400/50 text-purple-200 font-display font-bold text-xs transition">
+              ⚡ JUDGE UNLOCK
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 2: MISSION HUB & WINDING NODE MAP
+    =========================================== -->
+    <section id="screenMissionHub" class="w-full hidden space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-white">MISSION COMMAND SELECTOR</h2>
+          <p class="text-xs sm:text-sm text-slate-400">Select one of the three space missions below. Every stage features real interactive tasks and scientific epistemic badges.</p>
+        </div>
+        <button onclick="app.showScreen('screenHome')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold">
+          ← Back to Main Menu
+        </button>
+      </div>
+
+      <!-- 3 Mission Selection Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- MISSION 1: MOON ODYSSEY (FLAGSHIP 7-STAGE CAMPAIGN) -->
+        <div class="space-panel-gold rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono-tech font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                MISSION 01 • FLAGSHIP CAMPAIGN
+              </span>
+              <span class="text-2xl">🌕</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-white mb-1">Journey to the Lunar South Pole</h3>
+            <p class="text-xs text-slate-300 mb-4">
+              Walk inside your spacecraft, manage eclipse battery loads, replace saturated LiOH CO₂ filters, dodge micrometeoroids in external flight view, desaturate reaction wheels, and land at Shackleton Crater!
+            </p>
+            <!-- 7-Stage Winding Mini Node Map -->
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 mb-4">
+              <div class="text-[11px] font-mono-tech text-cyan-300 mb-2">7 INTERACTIVE CONOPS STAGES:</div>
+              <div class="grid grid-cols-7 gap-1 text-center text-[10px]">
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="Pre-Flight Launch Check">1.🚀</div>
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="Eclipse Power Load Shedding">2.⚡</div>
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="LiOH CO2 Filter Swap">3.🫧</div>
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="External Meteor Dodge">4.☄️</div>
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="Reaction Wheel RCS Dump">5.⚙️</div>
+                <div class="p-1.5 rounded bg-blue-950/80 border border-blue-500/40 text-blue-200" title="Shackleton Lidar Site Scan">6.📡</div>
+                <div class="p-1.5 rounded bg-amber-950/80 border border-amber-500/40 text-amber-200" title="Touchdown & Tiranga Flag">7.🇮🇳</div>
+              </div>
+            </div>
+          </div>
+          <button onclick="mission1.startPreFlight()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-display font-bold text-sm shadow-lg transition">
+            START MISSION 1 (FULL SHIP & EVA)
+          </button>
+        </div>
+
+        <!-- MISSION 2: DISCOVER AN EXOPLANET (TOI-700 d SCIENCE LAB) -->
+        <div class="space-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono-tech font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+                MISSION 02 • EXOPLANET LAB
+              </span>
+              <span class="text-2xl">🪐</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-white mb-1">Discover Habitable World TOI-700 d</h3>
+            <p class="text-xs text-slate-300 mb-4">
+              Operate a space telescope observatory inspired by NASA's TESS & JWST. Cool the infrared detector to 6.7 K, analyze real stellar transit light-curve dips, and inspect an artist's visualization of TOI-700 d.
+            </p>
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 mb-4 space-y-1.5 text-[11px] text-slate-300">
+              <div class="flex items-center gap-2"><span class="text-emerald-400">●</span> <span><b>Stage 1:</b> Sunshield & Helium Cryocooler (6.7 K)</span></div>
+              <div class="flex items-center gap-2"><span class="text-cyan-400">●</span> <span><b>Stage 2:</b> TESS Transit Photometry Curve Analysis</span></div>
+              <div class="flex items-center gap-2"><span class="text-purple-400">●</span> <span><b>Finale:</b> TOI-700 d Discovery & Epistemic Briefing</span></div>
+            </div>
+          </div>
+          <button onclick="scienceLabs.startMission2()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-display font-bold text-sm shadow-lg transition">
+            START MISSION 2 (EXOPLANET LAB)
+          </button>
+        </div>
+
+        <!-- MISSION 3: ALIEN CONTACT & ASTROBIOLOGY LAB -->
+        <div class="space-panel rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono-tech font-bold bg-purple-500/20 text-purple-300 border border-purple-400/40">
+                MISSION 03 • ASTROBIOLOGY & SETI LAB
+              </span>
+              <span class="text-2xl">👽</span>
+            </div>
+            <h3 class="font-display text-lg font-bold text-white mb-1">1420 MHz Contact & Astrobiology</h3>
+            <p class="text-xs text-slate-300 mb-4">
+              Tune a deep-space radio spectrometer to the 1420.4 MHz Neutral Hydrogen line, filter Earth RFI, and engage in an interactive First-Contact Thought Experiment exploring Europa Clipper & OSIRIS-REx science.
+            </p>
+            <div class="bg-slate-950/80 rounded-xl p-3 border border-slate-800 mb-4 space-y-1.5 text-[11px] text-slate-300">
+              <div class="flex items-center gap-2"><span class="text-emerald-400">●</span> <span><b>Stage 1:</b> 1420.4 MHz Hydrogen Line Tuner</span></div>
+              <div class="flex items-center gap-2"><span class="text-purple-400">●</span> <span><b>Stage 2:</b> Alien Scientist Dialogue & Real NASA Clues</span></div>
+              <div class="flex items-center gap-2"><span class="text-amber-400">●</span> <span><b>Finale:</b> Evidence vs. Speculation Debrief</span></div>
+            </div>
+          </div>
+          <button onclick="scienceLabs.startMission3()" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-display font-bold text-sm shadow-lg transition">
+            START MISSION 3 (SETI & ASTROBIOLOGY)
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 3: MISSION 1 STAGE 1 — PRE-FLIGHT CALCULATOR
+    =========================================== -->
+    <section id="screenPreFlight" class="w-full hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <div class="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-mono-tech mb-1">
+            🟡 [SIMPLIFIED EDUCATIONAL MODEL] • STAGE 1 OF 7
+          </div>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-white">PRE-FLIGHT SPACECRAFT & LAUNCH COMPATIBILITY</h2>
+        </div>
+        <button onclick="app.showScreen('screenMissionHub')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">← Abort to Hub</button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Selection Column 1: Spacecraft Configuration -->
+        <div class="space-panel rounded-2xl p-4 space-y-3">
+          <div class="text-xs font-mono-tech text-cyan-300 uppercase">1. Select Spacecraft Bus & Payload</div>
+          <div id="busOptionsContainer" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Selection Column 2: Launch Vehicle (Corrected TLI Capacities) -->
+        <div class="space-panel rounded-2xl p-4 space-y-3">
+          <div class="text-xs font-mono-tech text-amber-300 uppercase">2. Select Launch Vehicle (TLI Capacity)</div>
+          <div id="rocketOptionsContainer" class="space-y-2.5"></div>
+        </div>
+
+        <!-- Selection Column 3: Landing Propulsion & Telemetry Verdict -->
+        <div class="space-panel rounded-2xl p-4 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="text-xs font-mono-tech text-emerald-300 uppercase">3. Select Lunar Descent Propulsion</div>
+            <div id="propOptionsContainer" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Compatibility Calculator Box -->
+          <div id="preFlightVerdictBox" class="rounded-xl p-4 border bg-slate-950/90 space-y-2">
+            <!-- Populated dynamically by JS -->
+          </div>
+
+          <button id="btnConfirmLaunch" onclick="mission1.launchIntoSpace()" class="w-full py-3.5 rounded-xl font-display font-bold text-sm transition shadow-lg">
+            VERIFYING CONFIGURATION...
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 4: MISSION 1 ACTIVE SPACECRAFT (AMONG US + EXTERNAL VIEW)
+    =========================================== -->
+    <section id="screenShipGame" class="w-full hidden space-y-3">
+      <!-- Top Ship Telemetry HUD Bar -->
+      <div id="shipHudBar" class="space-panel rounded-2xl p-3 border border-cyan-500/40">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 items-center">
+          <!-- Stage Progress -->
+          <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="text-[10px] font-mono-tech text-slate-400 uppercase">MISSION STAGE</div>
+            <div id="hudStageTitle" class="text-xs font-bold text-cyan-300 truncate">Stage 2: Eclipse Power</div>
+          </div>
+
+          <!-- Power Battery -->
+          <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[10px] font-mono-tech">
+              <span class="text-slate-400">⚡ BATTERY</span>
+              <span id="hudPowerText" class="text-emerald-400 font-bold">88%</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mt-1">
+              <div id="hudPowerBar" class="h-full bg-emerald-400 transition-all duration-300" style="width:88%"></div>
+            </div>
+          </div>
+
+          <!-- Cabin CO2 Partial Pressure -->
+          <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[10px] font-mono-tech">
+              <span class="text-slate-400">🫧 CABIN CO₂</span>
+              <span id="hudCo2Text" class="text-cyan-300 font-bold">1.2 mmHg</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mt-1">
+              <div id="hudCo2Bar" class="h-full bg-cyan-400 transition-all duration-300" style="width:25%"></div>
+            </div>
+          </div>
+
+          <!-- Hull Integrity -->
+          <div class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="flex justify-between text-[10px] font-mono-tech">
+              <span class="text-slate-400">🛡️ HULL SHIELD</span>
+              <span id="hudHullText" class="text-blue-300 font-bold">100%</span>
+            </div>
+            <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden mt-1">
+              <div id="hudHullBar" class="h-full bg-blue-400 transition-all duration-300" style="width:100%"></div>
+            </div>
+          </div>
+
+          <!-- Emergency Countdown Timer -->
+          <div id="hudTimerContainer" class="bg-slate-950/90 px-3 py-2 rounded-xl border border-slate-800">
+            <div class="text-[10px] font-mono-tech text-slate-400 uppercase">ALERT TIMER</div>
+            <div id="hudTimerText" class="font-mono-tech text-sm font-bold text-emerald-400">NOMINAL</div>
+          </div>
+
+          <!-- View Toggle & Pause -->
+          <div class="flex items-center gap-1.5">
+            <button id="btnToggleShipView" onclick="mission1.toggleCameraView()" class="flex-1 py-2 px-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-200 font-display text-[11px] font-bold transition">
+              🔭 EXTERNAL VIEW
+            </button>
+            <button onclick="mission1.restartCurrentStage()" class="py-2 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs" title="Reset Current Stage">
+              🔄
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Game Area: Canvas + ARIA Flight Director Sidebar -->
+      <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-stretch">
+        <!-- 2D Interactive Canvas Container (3 Columns wide on desktop) -->
+        <div id="shipCanvasWrapper" class="lg:col-span-3 space-panel rounded-2xl p-2 sm:p-3 relative flex flex-col items-center justify-center overflow-hidden border border-blue-500/40">
+          <!-- Top Banner inside Canvas for Current Objective -->
+          <div id="canvasObjectiveBanner" class="w-full bg-slate-950/90 border border-cyan-500/30 rounded-xl px-3 py-2 mb-2 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span id="alertStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+              <span id="canvasObjectiveText" class="text-xs sm:text-sm font-semibold text-white">
+                Walk to the flashing terminal and press [E] or click INTERACT!
+              </span>
+            </div>
+            <button id="btnInteractPrompt" onclick="mission1.triggerActiveInteraction()" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-display font-bold text-xs shadow transition">
+              ⚡ INTERACT / OPEN TERMINAL [E]
+            </button>
+          </div>
+
+          <!-- THE 2D GAME CANVAS (Walkable Ship Interior + External Meteor Flight) -->
+          <div class="relative w-full aspect-[16/9] max-h-[460px] bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
+            <canvas id="shipGameCanvas" width="800" height="450" class="w-full h-full block"></canvas>
+          </div>
+
+          <!-- On-Screen Touch & Mouse Controls Bar (Great for Mobile & Desktop) -->
+          <div class="w-full mt-2 flex flex-wrap items-center justify-between gap-2 px-1">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[11px] text-slate-400 mr-1 hidden sm:inline">Move Cadet / Steer Ship:</span>
+              <button onmousedown="mission1.setKey('ArrowUp',true)" onmouseup="mission1.setKey('ArrowUp',false)" ontouchstart="mission1.setKey('ArrowUp',true);event.preventDefault()" ontouchend="mission1.setKey('ArrowUp',false)" class="px-3 py-2 rounded-lg bg-slate-800 active:bg-cyan-600 border border-slate-600 text-xs font-bold">▲ W/Up</button>
+              <button onmousedown="mission1.setKey('ArrowDown',true)" onmouseup="mission1.setKey('ArrowDown',false)" ontouchstart="mission1.setKey('ArrowDown',true);event.preventDefault()" ontouchend="mission1.setKey('ArrowDown',false)" class="px-3 py-2 rounded-lg bg-slate-800 active:bg-cyan-600 border border-slate-600 text-xs font-bold">▼ S/Down</button>
+              <button onmousedown="mission1.setKey('ArrowLeft',true)" onmouseup="mission1.setKey('ArrowLeft',false)" ontouchstart="mission1.setKey('ArrowLeft',true);event.preventDefault()" ontouchend="mission1.setKey('ArrowLeft',false)" class="px-3 py-2 rounded-lg bg-slate-800 active:bg-cyan-600 border border-slate-600 text-xs font-bold">◀ A/Left</button>
+              <button onmousedown="mission1.setKey('ArrowRight',true)" onmouseup="mission1.setKey('ArrowRight',false)" ontouchstart="mission1.setKey('ArrowRight',true);event.preventDefault()" ontouchend="mission1.setKey('ArrowRight',false)" class="px-3 py-2 rounded-lg bg-slate-800 active:bg-cyan-600 border border-slate-600 text-xs font-bold">▶ D/Right</button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="mission1.triggerActiveInteraction()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-display font-bold text-xs shadow">
+                🛠️ USE ROOM TERMINAL (E)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ARIA Flight Director Co-Pilot Panel (4 Practical Functions) -->
+        <div class="space-panel rounded-2xl p-4 flex flex-col justify-between border border-cyan-500/40">
+          <div class="space-y-3">
+            <!-- ARIA Header -->
+            <div class="flex items-center gap-2.5 border-b border-slate-800 pb-2.5">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-lg">
+                🤖
+              </div>
+              <div>
+                <div class="font-display text-xs font-bold text-cyan-300">ARIA FLIGHT DIRECTOR</div>
+                <div class="text-[10px] font-mono-tech text-emerald-400">● TELEMETRY LINK ACTIVE</div>
+              </div>
+            </div>
+
+            <!-- Function 1: Active Emergency Physics Explanation -->
+            <div class="bg-slate-950/90 rounded-xl p-3 border border-slate-800">
+              <div class="text-[10px] font-mono-tech uppercase text-amber-300 mb-1">1. SITUATION & PHYSICS CAUSE</div>
+              <p id="ariaSituationText" class="text-xs text-slate-200 leading-relaxed">
+                Welcome aboard! All subsystems are currently initializing.
+              </p>
+            </div>
+
+            <!-- Function 2: Free Engineering Hint -->
+            <div class="bg-slate-950/90 rounded-xl p-3 border border-slate-800">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-[10px] font-mono-tech uppercase text-cyan-300">2. ENGINEERING HINT</span>
+                <span class="text-[10px] text-emerald-400 font-mono-tech">0 Star Penalty</span>
+              </div>
+              <p id="ariaHintText" class="text-xs text-slate-400 italic mb-2">
+                Need help solving the current subsystem task? Click below for a step-by-step physics hint.
+              </p>
+              <button onclick="mission1.askAriaHint()" class="w-full py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/40 text-cyan-200 text-xs font-semibold transition">
+                💡 Ask ARIA for Solution Hint
+              </button>
+            </div>
+
+            <!-- Function 3: Live Resource Monitor -->
+            <div class="bg-slate-950/90 rounded-xl p-3 border border-slate-800">
+              <div class="text-[10px] font-mono-tech uppercase text-purple-300 mb-1">3. RESOURCE MONITOR</div>
+              <p id="ariaMonitorText" class="text-xs text-emerald-300">
+                All life-support and attitude parameters within safe limits.
+              </p>
+            </div>
+          </div>
+
+          <!-- Function 4: 1-Time Emergency Auto-Override -->
+          <div class="pt-3 border-t border-slate-800 mt-3">
+            <div class="text-[10px] font-mono-tech text-slate-400 mb-1.5 flex justify-between">
+              <span>4. EMERGENCY OVERRIDE</span>
+              <span id="ariaOverrideCountText" class="text-amber-300 font-bold">1 Left</span>
+            </div>
+            <button id="btnAriaOverride" onclick="mission1.useAriaOverride()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500/30 to-orange-500/30 hover:from-amber-500/50 hover:to-orange-500/50 border border-amber-400/60 text-amber-200 font-display font-bold text-xs transition">
+              ⚡ ARIA AUTO-STABILIZE STAGE
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 5: LUNAR SURFACE CELEBRATION & TIRANGA FINALE (STAGE 7)
+    =========================================== -->
+    <section id="screenLunarSurface" class="w-full hidden space-y-5">
+      <div class="space-panel-gold rounded-2xl p-6 border border-amber-400/50 relative overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-mono-tech font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+              🟢 [REAL NASA & ISRO HERITAGE] • SHACKLETON CRATER RIM (89.9° S)
+            </span>
+            <h2 class="font-display text-2xl sm:text-3xl font-black text-white mt-1">
+              TOUCHDOWN CONFIRMED AT LUNAR SOUTH POLE!
+            </h2>
+          </div>
+          <div class="text-right font-mono-tech text-xs text-amber-300">
+            <div>TOUCHDOWN VELOCITY: 1.1 m/s</div>
+            <div>SURFACE GRAVITY: 1.62 m/s² (1/6g)</div>
+          </div>
+        </div>
+
+        <!-- Interactive Lunar Surface Panorama Viewport -->
+        <div class="relative w-full h-64 sm:h-72 rounded-2xl bg-gradient-to-b from-[#030612] via-[#0c1428] to-[#334155] border border-slate-700 overflow-hidden flex flex-col justify-end p-6">
+          <!-- Distant Earth in the Lunar Sky -->
+          <div class="absolute top-6 right-12 flex flex-col items-center">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sky-400 via-blue-600 to-emerald-500 shadow-[0_0_25px_rgba(56,189,248,0.6)] flex items-center justify-center text-xl">
+              🌍
+            </div>
+            <span class="text-[10px] font-mono-tech text-sky-300 mt-1">Earth (384,400 km)</span>
+          </div>
+
+          <!-- Shackleton Sunlit Peaks Label -->
+          <div class="absolute top-6 left-6 bg-slate-950/80 border border-slate-700 px-3 py-1.5 rounded-lg text-xs font-mono-tech text-slate-300">
+            📍 Site: Connecting Ridge (Slope 3.8° • Sunlight 89%)
+          </div>
+
+          <!-- Lunar Regolith Crater Floor + Lander + Astronaut + Tiranga Flag -->
+          <div class="relative z-10 flex items-end justify-center gap-8 sm:gap-14 pb-2">
+            <!-- Lunar Lander Module -->
+            <div class="flex flex-col items-center">
+              <div class="text-5xl sm:text-6xl drop-shadow-[0_6px_12px_rgba(0,0,0,0.8)]">🛸</div>
+              <div class="text-[10px] font-mono-tech text-amber-300 bg-slate-950/80 px-2 py-0.5 rounded mt-1">Lunar Descent Module</div>
+            </div>
+
+            <!-- Player Astronaut Avatar (Dances when toggled) -->
+            <div class="flex flex-col items-center">
+              <div id="lunarSurfaceAvatar" class="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl border-2 border-white shadow-xl transition-transform" style="background:#f59e0b">
+                👩‍🚀
+              </div>
+              <div id="lunarDanceStatus" class="text-[10px] font-mono-tech text-cyan-300 bg-slate-950/80 px-2 py-0.5 rounded mt-1">EVA Suit Nominal</div>
+            </div>
+
+            <!-- Indian National Flag (Tiranga) Container — Revealed when planted -->
+            <div id="tirangaFlagMonument" class="hidden flex-col items-center animate-bounce">
+              <!-- Crisp SVG Indian National Flag -->
+              <div class="flex items-start">
+                <div class="w-1.5 h-20 bg-slate-300 rounded-t"></div>
+                <svg width="60" height="40" viewBox="0 0 90 60" class="border border-white/40 shadow-lg">
+                  <rect width="90" height="20" y="0" fill="#FF9933"/>
+                  <rect width="90" height="20" y="20" fill="#FFFFFF"/>
+                  <rect width="90" height="20" y="40" fill="#138808"/>
+                  <circle cx="45" cy="30" r="8" fill="none" stroke="#000080" stroke-width="1.5"/>
+                  <circle cx="45" cy="30" r="1.5" fill="#000080"/>
+                  <!-- Ashoka Chakra Spokes -->
+                  <g stroke="#000080" stroke-width="0.7">
+                    <line x1="45" y1="22" x2="45" y2="38"/><line x1="37" y1="30" x2="53" y2="30"/>
+                    <line x1="39.3" y1="24.3" x2="50.7" y2="35.7"/><line x1="50.7" y1="24.3" x2="39.3" y2="35.7"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="text-[10px] font-mono-tech text-amber-300 bg-slate-950/90 px-2 py-0.5 rounded border border-amber-400/40">
+                🇮🇳 Tiranga Planted!
+              </div>
+            </div>
+          </div>
+
+          <!-- Grey Regolith Ground Strip -->
+          <div class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600 border-t border-slate-400/40"></div>
+        </div>
+
+        <!-- 3 Interactive Lunar Surface Action Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5">
+          <button onclick="mission1.toggleMoonDance()" class="py-3 px-4 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-200 font-display font-bold text-xs flex items-center justify-center gap-2 transition">
+            <span>🕺</span> DO 1/6g LOW-GRAVITY MOON DANCE
+          </button>
+
+          <button onclick="mission1.plantIndianFlag()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-orange-500/30 via-white/20 to-emerald-500/30 hover:from-orange-500/50 hover:to-emerald-500/50 border border-amber-300/60 text-white font-display font-bold text-xs flex items-center justify-center gap-2 transition">
+            <span>🇮🇳</span> PLANT INDIAN NATIONAL FLAG (TIRANGA)
+          </button>
+
+          <button onclick="mission1.openLunarQuizAndReport()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-display font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition">
+            <span>🔬</span> ANALYZE ICE CORE & FINISH MISSION →
+          </button>
+        </div>
+
+        <!-- Real Lunar South Pole Science Facts Panel -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5 text-xs">
+          <div class="bg-slate-950/85 p-3.5 rounded-xl border border-slate-800">
+            <div class="font-bold text-amber-300 mb-1">🇮🇳 Chandrayaan-3 & Artemis Synergy</div>
+            <p class="text-slate-300 leading-relaxed">
+              In August 2023, ISRO's <b>Chandrayaan-3 Vikram lander</b> became the first spacecraft to soft-land near the lunar south pole (69.37° S), measuring topsoil temperatures with ChaSTE and confirming sulfur with LIBS.
+            </p>
+          </div>
+          <div class="bg-slate-950/85 p-3.5 rounded-xl border border-slate-800">
+            <div class="font-bold text-cyan-300 mb-1">🧊 Permanently Shadowed Regions (PSRs)</div>
+            <p class="text-slate-300 leading-relaxed">
+              Because the Moon's axis is tilted only <b>1.54°</b>, deep polar crater floors never see sunlight and stay below <b>100 K (-173°C)</b>, trapping ancient water ice that can be split into H₂ fuel and O₂ breathing air.
+            </p>
+          </div>
+          <div class="bg-slate-950/85 p-3.5 rounded-xl border border-slate-800">
+            <div class="font-bold text-emerald-300 mb-1">☀️ Peaks of Eternal Light</div>
+            <p class="text-slate-300 leading-relaxed">
+              Adjacent high crater rims at Shackleton receive solar illumination for <b>85%–90% of the lunar year</b>, providing nearly continuous solar power right next to shadowed ice reservoirs.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 6: MISSIONS 2 & 3 INTERACTIVE SCIENCE LABS
+    =========================================== -->
+    <section id="screenScienceLab" class="w-full hidden space-y-5">
+      <div id="scienceLabContainer" class="space-panel rounded-2xl p-5 sm:p-6 border border-cyan-500/40">
+        <!-- Dynamically populated by scienceLabs controller -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         SCREEN 7: NASA COLLECTOR CARDS & BLUEPRINT SHOP
+    =========================================== -->
+    <section id="screenCards" class="w-full hidden space-y-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-display text-xl sm:text-2xl font-bold text-white">NASA HERITAGE COLLECTOR CARDS</h2>
+          <p class="text-xs sm:text-sm text-slate-400">Spend your ✨ Stars to unlock cards and click any unlocked card to flip it and read real NASA mission telemetry!</p>
+        </div>
+        <button onclick="app.showScreen('screenHome')" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold">
+          ← Back to Main Menu
+        </button>
+      </div>
+
+      <div id="cardsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MODAL 1: INTERACTIVE ENGINEERING PUZZLE MODAL
+  =========================================== -->
+  <div id="puzzleModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="space-panel rounded-2xl max-w-2xl w-full p-5 sm:p-6 border-2 border-cyan-400/60 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
+        <div>
+          <div id="puzzleBadge" class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono-tech font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 mb-1">
+            🟢 [REAL NASA ENGINEERING]
+          </div>
+          <h3 id="puzzleTitle" class="font-display text-lg sm:text-xl font-bold text-white">SUBSYSTEM DIAGNOSTIC TERMINAL</h3>
+        </div>
+        <button onclick="mission1.closePuzzleModal()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">
+          ✕ Close
+        </button>
+      </div>
+
+      <!-- Dynamic Interactive Body -->
+      <div id="puzzleBody" class="space-y-4"></div>
+
+      <!-- Feedback Footer -->
+      <div id="puzzleFeedback" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+        Interact with the controls above to stabilize the subsystem.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: POST-MISSION 3-QUESTION QUIZ & REPORT
+  =========================================== -->
+  <div id="quizModal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+    <div class="space-panel-gold rounded-2xl max-w-2xl w-full p-5 sm:p-6 border-2 border-amber-400/60 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+      <div id="quizModalContent"></div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: AVATAR CUSTOMIZER & TUTORIAL MODAL
+  =========================================== -->
+  <div id="customModal" class="fixed inset-0 z-50 hidden bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div id="customModalContent" class="space-panel rounded-2xl max-w-lg w-full p-6 border border-cyan-400/50 shadow-2xl space-y-4"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 text-center py-2.5 px-4 text-[11px] text-slate-500 border-t border-slate-900/80">
+    ASTRO-QUEST: ODYSSEY v3.0 • Built for the 24-Hour NASA Hackathon • Scientifically Grounded Space Systems & Discovery
+  </footer>
+
+  <!-- ==========================================
+       COMPLETE APPLICATION & GAME ENGINE SCRIPT
+  =========================================== -->
+  <script>
+    /**************************************************************
+     * 1. WEBAUDIO SYNTHESIZER (Zero External Audio Dependencies)
+     **************************************************************/
+    const sfx = {
+      ctx: null,
+      muted: false,
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) this.ctx = new AudioCtx();
+        }
+      },
+      toggleMute() {
+        this.muted = !this.muted;
+        document.getElementById('btnAudioToggle').textContent = this.muted ? '🔇' : '🔊';
+      },
+      play(type) {
+        if (this.muted) return;
+        try {
+          this.init();
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          if (type === 'click') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(520, now);
+            osc.frequency.exponentialRampToValueAtTime(780, now + 0.06);
+            gain.gain.setValueAtTime(0.08, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.06);
+            osc.start(now);
+            osc.stop(now + 0.06);
+          } else if (type === 'success') {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.setValueAtTime(554.37, now + 0.08);
+            osc.frequency.setValueAtTime(659.25, now + 0.16);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+            osc.start(now);
+            osc.stop(now + 0.35);
+          } else if (type === 'alert') {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(310, now);
+            osc.frequency.linearRampToValueAtTime(220, now + 0.22);
+            gain.gain.setValueAtTime(0.09, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.24);
+            osc.start(now);
+            osc.stop(now + 0.24);
+          } else if (type === 'thruster') {
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(110, now);
+            osc.frequency.exponentialRampToValueAtTime(65, now + 0.15);
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now);
+            osc.stop(now + 0.15);
+          }
+        } catch (e) {}
+      }
+    };
+
+    /**************************************************************
+     * 2. GLOBAL STATE & COLLECTOR CARDS DATA
+     **************************************************************/
+    const state = {
+      cadetName: 'Cadet Vikram-1',
+      suitColor: '#f59e0b',
+      visorColor: '#38bdf8',
+      avatarEmoji: '👩‍🚀',
+      stars: 150,
+      patches: { 1: false, 2: false, 3: false },
+      unlockedCards: ['card_artemis', 'card_chandrayaan'],
+      flippedCards: {},
+      stats: {
+        repairsCompleted: 0,
+        ariaOverridesUsed: 0,
+        lowestHull: 100,
+        quizzesAccomplished: 0
+      }
+    };
+
+    const SPACE_CARDS = [
+      {
+        id: 'card_artemis',
+        title: 'NASA SLS & Orion',
+        category: 'LUNAR ARCHITECTURE',
+        icon: '🚀',
+        cost: 0,
+        frontDesc: 'Heavy-lift launch vehicle capable of sending 27,000 kg to Trans-Lunar Injection.',
+        backFact: 'REAL SPEC: Space Launch System (SLS) Block 1 uses 4 RS-25 liquid hydrogen/oxygen engines and 2 five-segment solid rocket boosters producing 39.1 Meganewtons of thrust at liftoff.'
+      },
+      {
+        id: 'card_chandrayaan',
+        title: 'ISRO Chandrayaan-3 Vikram',
+        category: 'SOUTH POLE HERITAGE',
+        icon: '🇮🇳',
+        cost: 0,
+        frontDesc: 'Historic first soft-lander in the lunar south polar region (69.37° S, August 2023).',
+        backFact: 'REAL SPEC: Vikram’s ChaSTE thermal probe measured a dramatic temperature drop from 50°C at the surface to -10°C just 8 cm below the lunar regolith, proving its strong thermal insulation!'
+      },
+      {
+        id: 'card_lioh',
+        title: 'LiOH CO₂ Scrubber Canister',
+        category: 'ECLSS LIFE SUPPORT',
+        icon: '🫧',
+        cost: 100,
+        frontDesc: 'Chemical carbon dioxide removal system used on Apollo and spacecraft cabins.',
+        backFact: 'REAL CHEMISTRY: 2 LiOH + CO₂ → Li₂CO₃ + H₂O. Lithium hydroxide exothermic reaction permanently binds exhaled carbon dioxide gas into solid lithium carbonate crust.'
+      },
+      {
+        id: 'card_toi700d',
+        title: 'Exoplanet TOI-700 d',
+        category: 'TESS & JWST DISCOVERY',
+        icon: '🪐',
+        cost: 120,
+        frontDesc: 'Earth-sized habitable-zone exoplanet orbiting a cool M-dwarf star 101.4 light-years away.',
+        backFact: 'REAL TELEMETRY: Confirmed by NASA TESS & Spitzer/JWST. Radius = 1.14 Earth radii, Orbital Period = 37.42 days, receiving 86% of Earth’s solar flux.'
+      },
+      {
+        id: 'card_jwst',
+        title: 'JWST MIRI Cryocooler',
+        category: 'INFRARED OPTICS',
+        icon: '🔭',
+        cost: 150,
+        frontDesc: 'Closed-cycle helium refrigerator cooling mid-infrared detectors below 6.7 Kelvin.',
+        backFact: 'REAL ENGINEERING: While JWST’s 5-layer Kapton sunshield passively cools the telescope to ~40 K, the MIRI instrument requires active helium-gas pulse-tube cooling to reach 6.7 K.'
+      },
+      {
+        id: 'card_europa',
+        title: 'NASA Europa Clipper',
+        category: 'ASTROBIOLOGY',
+        icon: '🧊',
+        cost: 150,
+        frontDesc: 'Spacecraft investigating whether Jupiter’s icy moon Europa has conditions suitable for life.',
+        backFact: 'SCIENTIFIC RIGOR: Induced magnetic field measurements strongly indicate a global subsurface saltwater ocean beneath Europa’s ice shell containing more liquid water than all of Earth’s oceans.'
+      }
+    ];
+
+    /**************************************************************
+     * 3. CORE APP CONTROLLER (Screens, Modals, Avatar, Patches)
+     **************************************************************/
+    const app = {
+      init() {
+        this.initStarfield();
+        this.updateTopBar();
+        this.renderCardsGrid();
+      },
+
+      showScreen(screenId) {
+        sfx.play('click');
+        const screens = [
+          'screenHome',
+          'screenMissionHub',
+          'screenPreFlight',
+          'screenShipGame',
+          'screenLunarSurface',
+          'screenScienceLab',
+          'screenCards'
+        ];
+        screens.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('hidden');
+        });
+        const target = document.getElementById(screenId);
+        if (target) target.classList.remove('hidden');
+
+        if (screenId !== 'screenShipGame') {
+          mission1.stopLoop();
+        }
+        if (screenId === 'screenCards') {
+          this.renderCardsGrid();
+        }
+      },
+
+      goHome() {
+        this.showScreen('screenHome');
+      },
+
+      addStars(amount) {
+        state.stars = Math.max(0, state.stars + amount);
+        this.updateTopBar();
+      },
+
+      unlockPatch(num) {
+        state.patches[num] = true;
+        this.updateTopBar();
+      },
+
+      updateTopBar() {
+        document.getElementById('topCadetName').textContent = state.cadetName;
+        const av = document.getElementById('topAvatarIcon');
+        av.style.background = state.suitColor;
+        av.textContent = state.avatarEmoji;
+        document.getElementById('topStarsCount').textContent = state.stars;
+
+        [1, 2, 3].forEach(n => {
+          const badge = document.getElementById(`patchBadge${n}`);
+          const lock = document.getElementById(`patchLock${n}`);
+          if (state.patches[n]) {
+            badge.className = 'cursor-pointer px-2.5 py-1 rounded-lg border text-xs font-display flex items-center gap-1.5 transition bg-amber-500/20 border-amber-400 text-amber-200 shadow';
+            lock.textContent = '★';
+          } else {
+            badge.className = 'cursor-pointer px-2.5 py-1 rounded-lg border text-xs font-display flex items-center gap-1.5 transition bg-slate-900/80 border-slate-700 text-slate-400';
+            lock.textContent = '🔒';
+          }
+        });
+      },
+
+      unlockJudgeMode() {
+        sfx.play('success');
+        state.stars += 500;
+        state.patches = { 1: true, 2: true, 3: true };
+        SPACE_CARDS.forEach(c => {
+          if (!state.unlockedCards.includes(c.id)) state.unlockedCards.push(c.id);
+        });
+        this.updateTopBar();
+        const modal = document.getElementById('customModal');
+        const content = document.getElementById('customModalContent');
+        content.innerHTML = `
+          <div class="text-center space-y-3">
+            <div class="text-4xl">⚡🏅</div>
+            <h3 class="font-display text-xl font-bold text-amber-300">JUDGE EVALUATION MODE ACTIVATED</h3>
+            <p class="text-xs text-slate-300">
+              All 3 Mission Patches, +500 ✨ Stars, and all 6 NASA Heritage Collector Cards have been unlocked! You can also jump directly into any mission or stage from the Mission Selector.
+            </p>
+            <div class="pt-2 flex gap-2 justify-center">
+              <button onclick="document.getElementById('customModal').classList.add('hidden'); app.showScreen('screenMissionHub');" class="px-5 py-2.5 rounded-xl bg-amber-400 text-slate-950 font-display font-bold text-xs">
+                GO TO MISSION HUB
+              </button>
+            </div>
+          </div>
+        `;
+        modal.classList.remove('hidden');
+      },
+
+      openAvatarModal() {
+        sfx.play('click');
+        const colors = [
+          { name: 'Solar Gold', hex: '#f59e0b' },
+          { name: 'Cryo Cyan', hex: '#06b6d4' },
+          { name: 'Nebula Purple', hex: '#8b5cf6' },
+          { name: 'Martian Coral', hex: '#f43f5e' },
+          { name: 'Emerald Bio', hex: '#10b981' },
+          { name: 'Commander Navy', hex: '#3b82f6' }
+        ];
+        const emojis = ['👩‍🚀', '👨‍🚀', '🧑‍🚀'];
+
+        const modal = document.getElementById('customModal');
+        const content = document.getElementById('customModalContent');
+        content.innerHTML = `
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <h3 class="font-display text-lg font-bold text-cyan-300">ASTRONAUT SUIT CUSTOMIZER</h3>
+            <button onclick="document.getElementById('customModal').classList.add('hidden')" class="text-slate-400 hover:text-white text-sm">✕</button>
+          </div>
+          <div class="space-y-4 text-xs">
+            <div class="flex items-center gap-4 bg-slate-950 p-3 rounded-xl border border-slate-800">
+              <div id="previewAvatarCircle" class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl border-2 border-white shadow-lg" style="background:${state.suitColor}">
+                ${state.avatarEmoji}
+              </div>
+              <div class="flex-1">
+                <label class="block text-[10px] font-mono-tech text-slate-400 uppercase mb-1">ASTRONAUT CALLSIGN</label>
+                <input id="inputCadetName" type="text" maxlength="18" value="${state.cadetName}" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-white font-semibold focus:outline-none focus:border-cyan-400" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-mono-tech text-slate-400 uppercase mb-2">SELECT ASTRONAUT CREW ICON</label>
+              <div class="grid grid-cols-3 gap-2">
+                ${emojis.map(em => `
+                  <button onclick="state.avatarEmoji='${em}'; document.getElementById('previewAvatarCircle').textContent='${em}'; sfx.play('click');" class="py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-2xl">
+                    ${em}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-mono-tech text-slate-400 uppercase mb-2">SELECT EVA SUIT COLOR</label>
+              <div class="grid grid-cols-3 gap-2">
+                ${colors.map(c => `
+                  <button onclick="state.suitColor='${c.hex}'; document.getElementById('previewAvatarCircle').style.background='${c.hex}'; sfx.play('click');" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center gap-2">
+                    <span class="w-4 h-4 rounded-full border border-white/50" style="background:${c.hex}"></span>
+                    <span class="text-slate-200 font-medium">${c.name}</span>
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <button onclick="app.saveAvatarProfile()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-display font-bold text-sm shadow-lg">
+              SAVE ASTRONAUT PROFILE
+            </button>
+          </div>
+        `;
+        modal.classList.remove('hidden');
+      },
+
+      saveAvatarProfile() {
+        const input = document.getElementById('inputCadetName');
+        if (input && input.value.trim()) {
+          state.cadetName = input.value.trim();
+        }
+        sfx.play('success');
+        this.updateTopBar();
+        document.getElementById('customModal').classList.add('hidden');
+      },
+
+      showPatchInfo(num) {
+        sfx.play('click');
+        const info = {
+          1: {
+            title: 'ARTEMIS-I & CHANDRAYAAN LUNAR PATCH',
+            icon: '🌕',
+            desc: 'Awarded for mastering Trans-Lunar Injection mass budgets, eclipse load shedding, LiOH CO₂ scrubbing, RCS momentum dumps, and landing safely at Shackleton Crater.'
+          },
+          2: {
+            title: 'EXO-TESS & JWST DISCOVERY PATCH',
+            icon: '🪐',
+            desc: 'Awarded for cooling the MIRI infrared detector to 6.7 K and identifying the 37.4-day habitable-zone transit signature of exoplanet TOI-700 d.'
+          },
+          3: {
+            title: 'SETI-1420 & ASTROBIOLOGY PATCH',
+            icon: '📡',
+            desc: 'Awarded for isolating the 1420.4 MHz neutral hydrogen line and distinguishing real NASA astrobiology evidence (Europa Clipper & Bennu) from hypothetical contact.'
+          }
+        }[num];
+
+        const unlocked = state.patches[num];
+        const modal = document.getElementById('customModal');
+        const content = document.getElementById('customModalContent');
+        content.innerHTML = `
+          <div class="text-center space-y-3">
+            <div class="text-5xl">${info.icon}</div>
+            <div class="inline-block px-3 py-0.5 rounded-full text-[10px] font-mono-tech ${unlocked ? 'bg-amber-500/20 text-amber-300 border border-amber-400' : 'bg-slate-800 text-slate-400'}">
+              ${unlocked ? '★ PATCH EARNED & UNLOCKED' : '🔒 COMPLETE MISSION ' + num + ' TO UNLOCK'}
+            </div>
+            <h3 class="font-display text-lg font-bold text-white">${info.title}</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">${info.desc}</p>
+            <button onclick="document.getElementById('customModal').classList.add('hidden')" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300">
+              Close
+            </button>
+          </div>
+        `;
+        modal.classList.remove('hidden');
+      },
+
+      toggleTutorial() {
+        sfx.play('click');
+        const modal = document.getElementById('customModal');
+        const content = document.getElementById('customModalContent');
+        content.innerHTML = `
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <h3 class="font-display text-lg font-bold text-cyan-300">HOW TO PLAY ASTRO-QUEST</h3>
+            <button onclick="document.getElementById('customModal').classList.add('hidden')" class="text-slate-400 hover:text-white text-sm">✕</button>
+          </div>
+          <div class="space-y-3 text-xs text-slate-300">
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-bold text-amber-300 mb-1">1. Walk Inside Your Spacecraft (Among Us Style)</div>
+              Use <b>WASD / Arrow Keys</b> or the on-screen touch buttons to walk between the 4 rooms: <b>Cockpit, Solar Power Bay, ECLSS Life Support, and Aft Propulsion Bay</b>.
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-bold text-cyan-300 mb-1">2. Interactive NASA Engineering Puzzles</div>
+              Press <b>[E]</b> or click <b>USE ROOM TERMINAL</b> at the glowing room console to solve real engineering problems (load shedding, LiOH CO₂ canisters, RCS wheel desaturation, Lidar hazard scans).
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-bold text-emerald-300 mb-1">3. Switch Between Internal & External Flight Views</div>
+              During micrometeoroid streams, switch to <b>External Flight View</b> to pilot the spacecraft across 3 flight lanes and collect telemetry orbs!
+            </div>
+            <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+              <div class="font-bold text-purple-300 mb-1">4. Fair Safe-Mode Recovery & ARIA Co-Pilot</div>
+              You will never suffer an unfair instant game-over. Ask <b>ARIA</b> for free physics hints, or use your 1-time <b>ARIA Auto-Stabilize Override</b> if you get stuck!
+            </div>
+            <button onclick="document.getElementById('customModal').classList.add('hidden')" class="w-full py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-display font-bold text-xs">
+              GOT IT, FLIGHT DIRECTOR!
+            </button>
+          </div>
+        `;
+        modal.classList.remove('hidden');
+      },
+
+      renderCardsGrid() {
+        const container = document.getElementById('cardsGridContainer');
+        if (!container) return;
+        container.innerHTML = SPACE_CARDS.map(card => {
+          const unlocked = state.unlockedCards.includes(card.id);
+          const flipped = !!state.flippedCards[card.id];
+          return `
+            <div class="space-panel rounded-2xl p-5 flex flex-col justify-between border ${unlocked ? 'border-cyan-400/50' : 'border-slate-800'} transition">
+              <div>
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-slate-900 text-cyan-300 border border-cyan-500/30">${card.category}</span>
+                  <span class="text-2xl">${card.icon}</span>
+                </div>
+                <h3 class="font-display text-base font-bold text-white mb-2">${card.title}</h3>
+                ${unlocked ? `
+                  <div onclick="app.flipCard('${card.id}')" class="cursor-pointer p-3.5 rounded-xl ${flipped ? 'bg-amber-950/50 border border-amber-400/50 text-amber-100' : 'bg-slate-950/90 border border-slate-800 text-slate-300'} text-xs leading-relaxed min-h-[96px] flex flex-col justify-between">
+                    <p>${flipped ? card.backFact : card.frontDesc}</p>
+                    <div class="text-[10px] font-mono-tech text-cyan-400 mt-2 text-right">
+                      🔄 Click card to flip (${flipped ? 'Showing Back Telemetry' : 'Showing Front Summary'})
+                    </div>
+                  </div>
+                ` : `
+                  <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-slate-500 text-xs min-h-[96px] flex items-center justify-center text-center">
+                    🔒 Locked Collector Card — Unlock with ✨ ${card.cost} Stars
+                  </div>
+                `}
+              </div>
+              <div class="mt-4">
+                ${unlocked ? `
+                  <button onclick="app.flipCard('${card.id}')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-display text-xs font-bold">
+                    🔄 FLIP CARD
+                  </button>
+                ` : `
+                  <button onclick="app.buyCard('${card.id}', ${card.cost})" class="w-full py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-display text-xs font-bold">
+                    UNLOCK FOR ✨ ${card.cost} STARS
+                  </button>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      },
+
+      flipCard(cardId) {
+        sfx.play('click');
+        state.flippedCards[cardId] = !state.flippedCards[cardId];
+        this.renderCardsGrid();
+      },
+
+      buyCard(cardId, cost) {
+        if (state.stars < cost) {
+          sfx.play('alert');
+          const modal = document.getElementById('customModal');
+          document.getElementById('customModalContent').innerHTML = `
+            <div class="text-center space-y-3">
+              <div class="text-3xl">✨</div>
+              <h3 class="font-display text-lg font-bold text-amber-300">NOT ENOUGH STARS YET</h3>
+              <p class="text-xs text-slate-300">Complete missions or answer post-mission science questions to earn more ✨ Stars!</p>
+              <button onclick="document.getElementById('customModal').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-white">OK</button>
+            </div>
+          `;
+          modal.classList.remove('hidden');
+          return;
+        }
+        sfx.play('success');
+        state.stars -= cost;
+        state.unlockedCards.push(cardId);
+        this.updateTopBar();
+        this.renderCardsGrid();
+      },
+
+      initStarfield() {
+        const canvas = document.getElementById('bgStarCanvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const resize = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          stars = Array.from({ length: 90 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.6 + 0.4,
+            a: Math.random(),
+            s: Math.random() * 0.015 + 0.005
+          }));
+        };
+        window.addEventListener('resize', resize);
+        resize();
+
+        const draw = () => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          stars.forEach(st => {
+            st.a += st.s;
+            const alpha = 0.3 + Math.abs(Math.sin(st.a)) * 0.7;
+            ctx.fillStyle = `rgba(226, 232, 240, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+            ctx.fill();
+          });
+          requestAnimationFrame(draw);
+        };
+        draw();
+      }
+    };
+
+    /**************************************************************
+     * 4. MISSION 1 ENGINE: FULL 7-STAGE LUNAR CAMPAIGN
+     **************************************************************/
+    const mission1 = {
+      // Pre-Flight Loadout Options
+      buses: [
+        { id: 'scout', name: 'Lunar Scout Lander', mass: 1200, desc: 'Compact crew cabin + LiOH life support + Lidar camera.' },
+        { id: 'artemis', name: 'Artemis Hab-Explorer', mass: 4200, desc: 'Reinforced Whipple shield + full science lab + dual scrubbers.' },
+        { id: 'heavy', name: 'Deep-Core Heavy Rig', mass: 9500, desc: 'Heavy drilling rig + thick radiation vault (requires heavy-lift rocket).' }
+      ],
+      rockets: [
+        { id: 'electron', name: 'Rocket Lab Electron + Photon', tliMax: 300, desc: 'SmallSat launcher. Max TLI capacity: ~300 kg.' },
+        { id: 'falcon9', name: 'SpaceX Falcon 9 (Expendable TLI)', tliMax: 4500, desc: 'Medium-heavy workhorse. Max TLI capacity: ~4,500 kg.' },
+        { id: 'sls', name: 'NASA SLS Block 1', tliMax: 27000, desc: 'Super heavy-lift lunar vehicle. Max TLI capacity: ~27,000 kg.' }
+      ],
+      propulsions: [
+        { id: 'chem', name: 'Hypergolic Chemical Descent Engine', highThrust: true, twr: '2.8 (High Thrust)', desc: 'High thrust-to-weight ratio capable of rapid lunar retro-braking.' },
+        { id: 'ion', name: 'Solar-Electric Hall Ion Thruster', highThrust: false, twr: '0.001 (Millinewtons)', desc: 'High efficiency for deep space, but thrust is far too weak to brake against lunar gravity!' }
+      ],
+
+      selectedBus: 'artemis',
+      selectedRocket: 'falcon9',
+      selectedProp: 'chem',
+
+      // Active Gameplay State
+      stage: 2, // 2=Power, 3=CO2, 4=Meteor Dodge, 5=Reaction Wheel, 6=Landing Site, 7=Touchdown
+      viewMode: 'interior', // 'interior' or 'external'
+      power: 88,
+      co2: 1.4,
+      hull: 100,
+      stageTimer: 45,
+      overrideRemaining: 1,
+      loopId: null,
+      lastTick: 0,
+      keys: {},
+
+      // Player Position inside 800x450 Ship Canvas
+      player: { x: 400, y: 225, radius: 16, speed: 3.6 },
+
+      // 4 Ship Rooms & Interactive Terminals
+      rooms: {
+        power:   { id: 'power',   name: 'PORT: SOLAR & POWER BAY', x: 70,  y: 75,  w: 220, h: 130, termX: 140, termY: 115, color: '#f59e0b' },
+        eclss:   { id: 'eclss',   name: 'CENTER: LIFE SUPPORT (ECLSS)', x: 300, y: 155, w: 210, h: 140, termX: 405, termY: 205, color: '#06b6d4' },
+        gnc:     { id: 'gnc',     name: 'AFT: GNC & REACTION WHEELS', x: 70,  y: 245, w: 220, h: 130, termX: 140, termY: 315, color: '#a855f7' },
+        cockpit: { id: 'cockpit', name: 'FORWARD: COCKPIT & RADAR', x: 520, y: 125, w: 210, h: 200, termX: 645, termY: 225, color: '#10b981' }
+      },
+
+      // Stage 4 External Meteor Dodge State
+      externalShipY: 225,
+      meteors: [],
+      orbs: [],
+      dodgeTimeRemaining: 18,
+
+      // Puzzle Specific States
+      powerSwitches: [
+        { id: 'ls', name: 'Life Support & O₂ Circulation', watts: 200, critical: true, on: true },
+        { id: 'fc', name: 'Flight Computer & Guidance', watts: 120, critical: true, on: true },
+        { id: 'ht', name: 'Emergency Cabin Survival Heaters', watts: 130, critical: true, on: true },
+        { id: 'dish', name: 'High-Gain Deep-Space Ka-Band Dish', watts: 180, critical: false, on: true },
+        { id: 'spec', name: 'Orbital Surface Spectrometer', watts: 140, critical: false, on: true },
+        { id: 'galley', name: 'Galley Warmer & Exterior Floodlights', watts: 80, critical: false, on: true }
+      ],
+      co2Step: 0, // 0=close valve B, 1=eject B, 2=insert fresh B
+      wheelRpm: 5900,
+      selectedLandingZone: null,
+      retroMarkerPos: 10,
+      retroMarkerDir: 1,
+      retroActive: false,
+
+      /* --- STAGE 1: PRE-FLIGHT CALCULATOR --- */
+      startPreFlight() {
+        app.showScreen('screenPreFlight');
+        this.renderPreFlight();
+      },
+
+      renderPreFlight() {
+        const busEl = document.getElementById('busOptionsContainer');
+        busEl.innerHTML = this.buses.map(b => `
+          <div onclick="mission1.selectedBus='${b.id}'; sfx.play('click'); mission1.renderPreFlight();" class="cursor-pointer p-3 rounded-xl border transition ${this.selectedBus === b.id ? 'bg-cyan-500/20 border-cyan-400' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}">
+            <div class="flex justify-between items-center text-xs font-bold text-white">
+              <span>${b.name}</span>
+              <span class="font-mono-tech text-cyan-300">${b.mass.toLocaleString()} kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">${b.desc}</div>
+          </div>
+        `).join('');
+
+        const rockEl = document.getElementById('rocketOptionsContainer');
+        rockEl.innerHTML = this.rockets.map(r => `
+          <div onclick="mission1.selectedRocket='${r.id}'; sfx.play('click'); mission1.renderPreFlight();" class="cursor-pointer p-3 rounded-xl border transition ${this.selectedRocket === r.id ? 'bg-amber-500/20 border-amber-400' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}">
+            <div class="flex justify-between items-center text-xs font-bold text-white">
+              <span>${r.name}</span>
+              <span class="font-mono-tech text-amber-300">Max ${r.tliMax.toLocaleString()} kg</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">${r.desc}</div>
+          </div>
+        `).join('');
+
+        const propEl = document.getElementById('propOptionsContainer');
+        propEl.innerHTML = this.propulsions.map(p => `
+          <div onclick="mission1.selectedProp='${p.id}'; sfx.play('click'); mission1.renderPreFlight();" class="cursor-pointer p-3 rounded-xl border transition ${this.selectedProp === p.id ? 'bg-emerald-500/20 border-emerald-400' : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'}">
+            <div class="flex justify-between items-center text-xs font-bold text-white">
+              <span>${p.name}</span>
+              <span class="font-mono-tech text-emerald-300">TWR: ${p.twr}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 mt-1">${p.desc}</div>
+          </div>
+        `).join('');
+
+        const bus = this.buses.find(b => b.id === this.selectedBus);
+        const rocket = this.rockets.find(r => r.id === this.selectedRocket);
+        const prop = this.propulsions.find(p => p.id === this.selectedProp);
+
+        const verdictBox = document.getElementById('preFlightVerdictBox');
+        const btn = document.getElementById('btnConfirmLaunch');
+
+        if (bus.mass > rocket.tliMax) {
+          verdictBox.className = 'rounded-xl p-4 border border-rose-500/60 bg-rose-950/40 space-y-1.5';
+          verdictBox.innerHTML = `
+            <div class="text-xs font-display font-bold text-rose-300">❌ INCOMPATIBLE: MASS EXCEEDS LAUNCH CAPACITY</div>
+            <p class="text-xs text-slate-200">
+              Your <b>${bus.name} (${bus.mass.toLocaleString()} kg)</b> exceeds <b>${rocket.name}'s</b> Trans-Lunar Injection capacity (<b>${rocket.tliMax.toLocaleString()} kg</b>). Select a heavier rocket or lighter spacecraft!
+            </p>
+          `;
+          btn.disabled = true;
+          btn.className = 'w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-display font-bold text-sm cursor-not-allowed';
+          btn.textContent = 'CANNOT LAUNCH — OVERWEIGHT PAYLOAD';
+        } else if (!prop.highThrust) {
+          verdictBox.className = 'rounded-xl p-4 border border-amber-500/60 bg-amber-950/40 space-y-1.5';
+          verdictBox.innerHTML = `
+            <div class="text-xs font-display font-bold text-amber-300">⚠️ INSUFFICIENT THRUST FOR LUNAR LANDING</div>
+            <p class="text-xs text-slate-200">
+              <b>Hall-Effect Ion Thrusters</b> have high specific impulse but produce only millinewtons of thrust (TWR ≈ 0.001). Lunar gravity (1.62 m/s²) will pull you into the surface before you can brake! Switch to <b>Hypergolic Chemical Descent</b>.
+            </p>
+          `;
+          btn.disabled = true;
+          btn.className = 'w-full py-3.5 rounded-xl bg-slate-800 text-slate-500 font-display font-bold text-sm cursor-not-allowed';
+          btn.textContent = 'CANNOT LAND — THRUST TOO LOW';
+        } else {
+          const margin = rocket.tliMax - bus.mass;
+          verdictBox.className = 'rounded-xl p-4 border border-emerald-500/60 bg-emerald-950/40 space-y-1.5';
+          verdictBox.innerHTML = `
+            <div class="text-xs font-display font-bold text-emerald-300">✅ COMPATIBLE: CLEARED FOR TRANS-LUNAR LAUNCH</div>
+            <p class="text-xs text-slate-200">
+              Payload mass (<b>${bus.mass.toLocaleString()} kg</b>) fits safely inside <b>${rocket.name}</b> with <b>+${margin.toLocaleString()} kg</b> TLI margin, and chemical descent engines provide sufficient braking thrust (TWR 2.8).
+            </p>
+          `;
+          btn.disabled = false;
+          btn.className = 'w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 hover:from-emerald-300 hover:to-cyan-400 text-slate-950 font-display font-bold text-sm shadow-lg transition cursor-pointer';
+          btn.textContent = '🚀 LAUNCH MISSION 1 INTO TRANS-LUNAR ORBIT →';
+        }
+      },
+
+      launchIntoSpace() {
+        sfx.play('success');
+        this.power = 88;
+        this.co2 = 1.4;
+        this.hull = 100;
+        this.overrideRemaining = 1;
+        this.player.x = 400;
+        this.player.y = 225;
+        app.showScreen('screenShipGame');
+        this.setupStage(2);
+        this.startLoop();
+      },
+
+      /* --- STAGE MANAGEMENT (STAGES 2 TO 6) --- */
+      setupStage(stageNum) {
+        this.stage = stageNum;
+        this.stageTimer = 45;
+        this.closePuzzleModal();
+        document.getElementById('btnAriaOverride').disabled = this.overrideRemaining <= 0;
+        document.getElementById('ariaOverrideCountText').textContent = `${this.overrideRemaining} Left`;
+
+        if (stageNum === 2) {
+          this.viewMode = 'interior';
+          this.powerSwitches.forEach(s => s.on = true);
+          this.updateStageUI(
+            'Stage 2/7: Eclipse Power Shedding',
+            '⚡ ALERT: Earth Umbra Eclipse! Walk to PORT SOLAR & POWER BAY (Top-Left) and press [E].',
+            'We have entered Earth’s shadow (umbra). Solar arrays generate 0 W! Battery discharge is capped at 500 W, but the ship is drawing 850 W.',
+            'Walk to the orange top-left room (Solar & Power Bay). Turn OFF the 3 non-essential systems while keeping Life Support, Flight Computer, and Cabin Heaters ON.'
+          );
+        } else if (stageNum === 3) {
+          this.viewMode = 'interior';
+          this.co2 = 4.6;
+          this.co2Step = 0;
+          this.updateStageUI(
+            'Stage 3/7: LiOH CO₂ Scrubber Swap',
+            '🫧 ALERT: Cabin CO₂ climbing (4.6 mmHg)! Walk to CENTER ECLSS ROOM and press [E].',
+            'Crew respiration is raising cabin carbon dioxide partial pressure above NASA’s 4.0 mmHg limit. Oxygen is still 21%, so we must scrub the excess CO₂ using Lithium Hydroxide (LiOH).',
+            'Walk to the center cyan room (ECLSS). Isolate Airflow Valve B, eject the 98% saturated Canister B, and insert the fresh LiOH canister.'
+          );
+        } else if (stageNum === 4) {
+          this.viewMode = 'external';
+          this.dodgeTimeRemaining = 16;
+          this.meteors = [];
+          this.orbs = [];
+          this.externalShipY = 225;
+          this.updateStageUI(
+            'Stage 4/7: Micrometeoroid Stream Dodge',
+            '☄️ EXTERNAL FLIGHT VIEW ACTIVE! Steer Up/Down (W/S or Arrows) for 16s to dodge meteoroids!',
+            'Short-range radar detected a sporadic high-velocity micrometeoroid stream. I have switched the viewport to External Flight Mode so you can pilot around debris!',
+            'Use W/S, Up/Down Arrows, or the on-screen ▲/▼ buttons to steer the spacecraft away from red meteoroids and collect cyan telemetry orbs.'
+          );
+        } else if (stageNum === 5) {
+          this.viewMode = 'interior';
+          this.wheelRpm = 5900;
+          this.updateStageUI(
+            'Stage 5/7: Reaction Wheel Desaturation',
+            '⚙️ ALERT: Pitch Reaction Wheel Saturated (5,900 RPM)! Walk to AFT GNC BAY (Bottom-Left) & press [E].',
+            'Solar radiation pressure torque has spun our Pitch (Y-axis) reaction wheel near its 6,000 RPM mechanical limit. We must fire opposing RCS thrusters to dump angular momentum!',
+            'Walk to the purple bottom-left room (Aft GNC Bay). Fire the [-Y PITCH RCS THRUSTER BURST] 3 times to decelerate the wheel below 1,500 RPM.'
+          );
+        } else if (stageNum === 6) {
+          this.viewMode = 'interior';
+          this.selectedLandingZone = null;
+          this.retroActive = false;
+          this.updateStageUI(
+            'Stage 6/7: Shackleton Crater Lidar Scan',
+            '📡 LUNAR ORBIT ACHIEVED! Walk to FORWARD COCKPIT (Right) and press [E] for Landing Radar.',
+            'We are orbiting 100 km above the Lunar South Pole! You need to analyze Lidar slope and boulder telemetry at Shackleton Crater and execute final retro-braking.',
+            'Walk to the green right-hand room (Cockpit). Choose Zone Gamma (3.8° slope, zero boulders, 89% sunlight) and engage retro-braking in the green window.'
+          );
+        }
+        this.syncViewButton();
+      },
+
+      updateStageUI(stageTitle, bannerText, ariaSit, ariaHint) {
+        document.getElementById('hudStageTitle').textContent = stageTitle;
+        document.getElementById('canvasObjectiveText').textContent = bannerText;
+        document.getElementById('ariaSituationText').textContent = ariaSit;
+        document.getElementById('ariaHintText').dataset.hint = ariaHint;
+        document.getElementById('ariaHintText').textContent = 'Click below for a penalty-free physics solution hint from ARIA.';
+      },
+
+      askAriaHint() {
+        sfx.play('click');
+        const el = document.getElementById('ariaHintText');
+        el.textContent = el.dataset.hint || 'Walk to the highlighted room terminal and press [E]!';
+        el.className = 'text-xs text-cyan-200 font-medium mb-2 bg-cyan-950/60 p-2 rounded border border-cyan-500/40';
+      },
+
+      useAriaOverride() {
+        if (this.overrideRemaining <= 0) return;
+        sfx.play('success');
+        this.overrideRemaining--;
+        state.stats.ariaOverridesUsed++;
+        document.getElementById('ariaOverrideCountText').textContent = `${this.overrideRemaining} Left`;
+        document.getElementById('btnAriaOverride').disabled = true;
+        this.completeCurrentStage('⚡ ARIA AUTO-OVERRIDE ENGAGED! Subsystem stabilized automatically.');
+      },
+
+      restartCurrentStage() {
+        sfx.play('click');
+        this.setupStage(this.stage);
+      },
+
+      toggleCameraView() {
+        sfx.play('click');
+        this.viewMode = this.viewMode === 'interior' ? 'external' : 'interior';
+        this.syncViewButton();
+      },
+
+      syncViewButton() {
+        const btn = document.getElementById('btnToggleShipView');
+        if (this.viewMode === 'interior') {
+          btn.innerHTML = '🔭 EXTERNAL VIEW';
+        } else {
+          btn.innerHTML = '🏠 INTERIOR CABIN';
+        }
+      },
+
+      setKey(key, isDown) {
+        this.keys[key] = isDown;
+      },
+
+      targetRoomForStage() {
+        if (this.stage === 2) return this.rooms.power;
+        if (this.stage === 3) return this.rooms.eclss;
+        if (this.stage === 5) return this.rooms.gnc;
+        return this.rooms.cockpit;
+      },
+
+      /* --- MAIN 60FPS CANVAS LOOP --- */
+      startLoop() {
+        this.stopLoop();
+        this.lastTick = performance.now();
+        const step = (now) => {
+          const dt = Math.min(0.1, (now - this.lastTick) / 1000);
+          this.lastTick = now;
+          this.update(dt);
+          this.render();
+          this.loopId = requestAnimationFrame(step);
+        };
+        this.loopId = requestAnimationFrame(step);
+      },
+
+      stopLoop() {
+        if (this.loopId) {
+          cancelAnimationFrame(this.loopId);
+          this.loopId = null;
+        }
+      },
+
+      update(dt) {
+        // Countdown Fair Emergency Timer
+        if (this.stage >= 2 && this.stage <= 6 && this.stage !== 4) {
+          this.stageTimer -= dt;
+          if (this.stage === 2) {
+            this.power = Math.max(15, this.power - dt * 1.1);
+          } else if (this.stage === 3) {
+            this.co2 = Math.min(5.8, this.co2 + dt * 0.03);
+          }
+
+          // Fair Safe-Mode Recovery if timer reaches 0 (Never an unfair game over)
+          if (this.stageTimer <= 0) {
+            sfx.play('alert');
+            this.stageTimer = 45;
+            this.power = Math.max(45, this.power);
+            this.co2 = Math.min(3.8, this.co2);
+            document.getElementById('ariaMonitorText').textContent =
+              'SAFE-MODE RECOVERY ACTIVATED: Backup batteries stabilized the ship so you can finish the repair!';
+          }
+        }
+
+        // Update Player Movement in Interior View
+        if (this.viewMode === 'interior') {
+          let dx = 0, dy = 0;
+          if (this.keys['ArrowUp'] || this.keys['KeyW']) dy -= 1;
+          if (this.keys['ArrowDown'] || this.keys['KeyS']) dy += 1;
+          if (this.keys['ArrowLeft'] || this.keys['KeyA']) dx -= 1;
+          if (this.keys['ArrowRight'] || this.keys['KeyD']) dx += 1;
+          if (dx !== 0 && dy !== 0) {
+            dx *= 0.7071;
+            dy *= 0.7071;
+          }
+          this.player.x = Math.max(85, Math.min(715, this.player.x + dx * this.player.speed));
+          this.player.y = Math.max(90, Math.min(360, this.player.y + dy * this.player.speed));
+        } else {
+          // External Flight View Movement & Meteor Dodge (Stage 4 or free flight)
+          let dy = 0;
+          if (this.keys['ArrowUp'] || this.keys['KeyW']) dy -= 1;
+          if (this.keys['ArrowDown'] || this.keys['KeyS']) dy += 1;
+          this.externalShipY = Math.max(70, Math.min(380, this.externalShipY + dy * 4.5));
+
+          if (this.stage === 4) {
+            this.dodgeTimeRemaining -= dt;
+            if (Math.random() < dt * 2.3) {
+              this.meteors.push({
+                x: 820,
+                y: 65 + Math.random() * 320,
+                r: 14 + Math.random() * 10,
+                vx: 240 + Math.random() * 110
+              });
+            }
+            if (Math.random() < dt * 0.9) {
+              this.orbs.push({
+                x: 820,
+                y: 75 + Math.random() * 300,
+                r: 10,
+                vx: 200
+              });
+            }
+
+            // Move & Collide Meteors
+            this.meteors.forEach(m => m.x -= m.vx * dt);
+            this.meteors = this.meteors.filter(m => {
+              const dist = Math.hypot(m.x - 170, m.y - this.externalShipY);
+              if (dist < m.r + 24) {
+                sfx.play('alert');
+                this.hull = Math.max(30, this.hull - 15);
+                state.stats.lowestHull = Math.min(state.stats.lowestHull, this.hull);
+                if (this.hull <= 30) {
+                  // Recoverable Whipple Shield Reset
+                  this.hull = 65;
+                  document.getElementById('ariaMonitorText').textContent =
+                    'WHIPPLE SHIELD RECOVERY: Impact absorbed! Reinforcing hull to 65%.';
+                }
+                return false;
+              }
+              return m.x > -40;
+            });
+
+            // Move & Collect Telemetry Orbs
+            this.orbs.forEach(o => o.x -= o.vx * dt);
+            this.orbs = this.orbs.filter(o => {
+              const dist = Math.hypot(o.x - 170, o.y - this.externalShipY);
+              if (dist < o.r + 26) {
+                sfx.play('success');
+                app.addStars(15);
+                return false;
+              }
+              return o.x > -30;
+            });
+
+            if (this.dodgeTimeRemaining <= 0) {
+              this.completeCurrentStage('☄️ MICROMETEOROID STREAM CLEARED! Returning to cabin view.');
+            }
+          }
+        }
+
+        // Update Stage 6 Retro-Braking Indicator if active
+        if (this.retroActive) {
+          this.retroMarkerPos += this.retroMarkerDir * dt * 85;
+          if (this.retroMarkerPos >= 95) { this.retroMarkerPos = 95; this.retroMarkerDir = -1; }
+          if (this.retroMarkerPos <= 5)  { this.retroMarkerPos = 5;  this.retroMarkerDir = 1; }
+          const barEl = document.getElementById('retroMarkerCursor');
+          if (barEl) barEl.style.left = `${this.retroMarkerPos}%`;
+        }
+
+        this.updateHudGauges();
+      },
+
+      updateHudGauges() {
+        document.getElementById('hudPowerText').textContent = `${Math.round(this.power)}%`;
+        document.getElementById('hudPowerBar').style.width = `${this.power}%`;
+        document.getElementById('hudCo2Text').textContent = `${this.co2.toFixed(1)} mmHg`;
+        document.getElementById('hudCo2Bar').style.width = `${Math.min(100, (this.co2 / 6) * 100)}%`;
+        document.getElementById('hudHullText').textContent = `${Math.round(this.hull)}%`;
+        document.getElementById('hudHullBar').style.width = `${this.hull}%`;
+
+        const timerEl = document.getElementById('hudTimerText');
+        if (this.stage === 4) {
+          timerEl.textContent = `DODGE: ${Math.ceil(this.dodgeTimeRemaining)}s`;
+          timerEl.className = 'font-mono-tech text-sm font-bold text-cyan-300';
+        } else {
+          timerEl.textContent = `${Math.ceil(this.stageTimer)}s`;
+          timerEl.className = this.stageTimer < 15
+            ? 'font-mono-tech text-sm font-bold text-rose-400 animate-pulse'
+            : 'font-mono-tech text-sm font-bold text-amber-300';
+        }
+      },
+
+      /* --- RENDER 2D CANVAS (INTERIOR & EXTERNAL VIEWS) --- */
+      render() {
+        const canvas = document.getElementById('shipGameCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (this.viewMode === 'interior') {
+          this.renderInterior(ctx);
+        } else {
+          this.renderExternal(ctx);
+        }
+      },
+
+      renderInterior(ctx) {
+        // Deep Space Star Background outside ship hull
+        ctx.fillStyle = '#040711';
+        ctx.fillRect(0, 0, 800, 450);
+
+        // Outer Spacecraft Hull Silhouette (Among Us style cutaway)
+        ctx.fillStyle = '#1e293b';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(50, 55, 700, 340, 36);
+        ctx.fill();
+        ctx.stroke();
+
+        // Central Open Walkways
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(65, 68, 670, 314);
+
+        // Floor Grid Lines
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.1)';
+        ctx.lineWidth = 1;
+        for (let x = 80; x < 730; x += 40) {
+          ctx.beginPath(); ctx.moveTo(x, 68); ctx.lineTo(x, 382); ctx.stroke();
+        }
+        for (let y = 80; y < 380; y += 40) {
+          ctx.beginPath(); ctx.moveTo(65, y); ctx.lineTo(735, y); ctx.stroke();
+        }
+
+        const targetRoom = this.targetRoomForStage();
+
+        // Draw 4 Functional Ship Rooms
+        Object.values(this.rooms).forEach(rm => {
+          const isTarget = rm.id === targetRoom.id;
+          ctx.fillStyle = isTarget ? 'rgba(56, 189, 248, 0.13)' : 'rgba(30, 41, 59, 0.75)';
+          ctx.strokeStyle = isTarget ? rm.color : '#475569';
+          ctx.lineWidth = isTarget ? 3 : 1.5;
+          ctx.beginPath();
+          ctx.roundRect(rm.x, rm.y, rm.w, rm.h, 14);
+          ctx.fill();
+          ctx.stroke();
+
+          // Room Title Label
+          ctx.fillStyle = isTarget ? '#ffffff' : '#94a3b8';
+          ctx.font = 'bold 11px Orbitron, sans-serif';
+          ctx.fillText(rm.name, rm.x + 12, rm.y + 22);
+
+          // Glowing Interactive Terminal Console
+          ctx.fillStyle = rm.color;
+          ctx.beginPath();
+          ctx.arc(rm.termX, rm.termY, isTarget ? 15 : 11, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#020617';
+          ctx.font = 'bold 11px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('E', rm.termX, rm.termY + 4);
+          ctx.textAlign = 'left';
+        });
+
+        // Draw Guiding Floor Line from Astronaut to Target Terminal
+        ctx.save();
+        ctx.strokeStyle = targetRoom.color;
+        ctx.setLineDash([6, 6]);
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(this.player.x, this.player.y);
+        ctx.lineTo(targetRoom.termX, targetRoom.termY);
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw Customized Crewmate / Astronaut Character
+        ctx.save();
+        ctx.translate(this.player.x, this.player.y);
+        // Backpack
+        ctx.fillStyle = state.suitColor;
+        ctx.fillRect(-18, -10, 7, 20);
+        // Suit Body
+        ctx.beginPath();
+        ctx.arc(0, 0, this.player.radius, 0, Math.PI * 2);
+        ctx.fillStyle = state.suitColor;
+        ctx.fill();
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        // Visor
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.roundRect(2, -8, 13, 11, 5);
+        ctx.fill();
+        // Callsign Tag above Head
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 11px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(state.cadetName, 0, -24);
+        ctx.restore();
+      },
+
+      renderExternal(ctx) {
+        // Deep Space Gradient
+        const grad = ctx.createLinearGradient(0, 0, 800, 450);
+        grad.addColorStop(0, '#020617');
+        grad.addColorStop(1, '#0f172a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 800, 450);
+
+        // Distant Earth Behind & Moon Ahead
+        ctx.fillStyle = '#2563eb';
+        ctx.beginPath();
+        ctx.arc(65, 85, 34, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#94a3b8';
+        ctx.beginPath();
+        ctx.arc(725, 225, 58, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Flight Lanes
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.14)';
+        ctx.setLineDash([8, 8]);
+        [130, 225, 320].forEach(y => {
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(800, y); ctx.stroke();
+        });
+        ctx.setLineDash([]);
+
+        // Draw Spacecraft Exterior with Engine Plume
+        ctx.save();
+        ctx.translate(170, this.externalShipY);
+        // Thruster Plume
+        ctx.fillStyle = '#38bdf8';
+        ctx.beginPath();
+        ctx.moveTo(-36, -8);
+        ctx.lineTo(-65 - Math.random() * 15, 0);
+        ctx.lineTo(-36, 8);
+        ctx.fill();
+        // Solar Wings
+        ctx.fillStyle = '#1d4ed8';
+        ctx.strokeStyle = '#93c5fd';
+        ctx.lineWidth = 1.5;
+        ctx.fillRect(-10, -42, 22, 84);
+        ctx.strokeRect(-10, -42, 22, 84);
+        // Fuselage
+        ctx.fillStyle = '#e2e8f0';
+        ctx.beginPath();
+        ctx.roundRect(-36, -16, 72, 32, 12);
+        ctx.fill();
+        // Viewport Window
+        ctx.fillStyle = state.suitColor;
+        ctx.beginPath();
+        ctx.arc(16, 0, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Draw Incoming Micrometeoroids
+        this.meteors.forEach(m => {
+          ctx.fillStyle = '#ef4444';
+          ctx.strokeStyle = '#fca5a5';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        // Draw Telemetry Orbs
+        this.orbs.forEach(o => {
+          ctx.fillStyle = '#22d3ee';
+          ctx.beginPath();
+          ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // HUD Overlay inside External Canvas
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 13px Orbitron, sans-serif';
+        ctx.fillText(
+          this.stage === 4
+            ? `☄️ MICROMETEOROID STREAM — DODGE FOR ${Math.ceil(this.dodgeTimeRemaining)}s (STEER W/S OR ▲/▼)`
+            : '🔭 EXTERNAL TELEMETRY CAMERA — TRANS-LUNAR COAST',
+          24,
+          34
+        );
+      },
+
+      /* --- INTERACTIVE ENGINEERING PUZZLES (STAGES 2, 3, 5, 6) --- */
+      triggerActiveInteraction() {
+        sfx.play('click');
+        if (this.stage === 4) {
+          this.viewMode = 'external';
+          this.syncViewButton();
+          return;
+        }
+        const target = this.targetRoomForStage();
+        // Snap player close to terminal if they clicked the button directly so mobile players never get frustrated
+        this.player.x = target.termX;
+        this.player.y = target.termY + 28;
+        this.openStagePuzzleModal();
+      },
+
+      openStagePuzzleModal() {
+        const modal = document.getElementById('puzzleModal');
+        modal.classList.remove('hidden');
+
+        if (this.stage === 2) this.renderPowerPuzzle();
+        else if (this.stage === 3) this.renderCo2Puzzle();
+        else if (this.stage === 5) this.renderWheelPuzzle();
+        else if (this.stage === 6) this.renderLandingPuzzle();
+      },
+
+      closePuzzleModal() {
+        this.retroActive = false;
+        document.getElementById('puzzleModal').classList.add('hidden');
+      },
+
+      /* PUZZLE 2: ECLIPSE POWER LOAD SHEDDING */
+      renderPowerPuzzle() {
+        document.getElementById('puzzleBadge').textContent = '🟢 [REAL NASA ENGINEERING] • ECLIPSE POWER BUS';
+        document.getElementById('puzzleTitle').textContent = 'SOLAR ECLIPSE BATTERY LOAD SHEDDING';
+
+        const totalWatts = this.powerSwitches.reduce((acc, s) => acc + (s.on ? s.watts : 0), 0);
+        const allCriticalOn = this.powerSwitches.filter(s => s.critical).every(s => s.on);
+        const isSolved = totalWatts <= 500 && allCriticalOn;
+
+        document.getElementById('puzzleBody').innerHTML = `
+          <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-mono-tech text-slate-400">CURRENT BUS LOAD vs. ECLIPSE BATTERY LIMIT</div>
+              <div class="text-lg font-mono-tech font-bold ${totalWatts <= 500 ? 'text-emerald-400' : 'text-rose-400'}">
+                ${totalWatts} W / 500 W MAX
+              </div>
+            </div>
+            <div class="text-right text-xs">
+              <div class="${allCriticalOn ? 'text-emerald-400' : 'text-rose-400'} font-bold">
+                ${allCriticalOn ? '✔ All Critical Systems Powered' : '⚠️ CRITICAL SYSTEM OFF!'}
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            ${this.powerSwitches.map((sw, idx) => `
+              <div onclick="mission1.toggleBreaker(${idx})" class="cursor-pointer p-3 rounded-xl border flex items-center justify-between transition ${sw.on ? 'bg-blue-950/50 border-cyan-400/60' : 'bg-slate-900/60 border-slate-800 opacity-70'}">
+                <div>
+                  <div class="text-xs font-bold text-white flex items-center gap-2">
+                    <span>${sw.name}</span>
+                    <span class="text-[10px] font-mono-tech px-2 py-0.5 rounded ${sw.critical ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : 'bg-slate-800 text-slate-300'}">
+                      ${sw.critical ? 'CRITICAL' : 'NON-ESSENTIAL'}
+                    </span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="font-mono-tech text-xs font-bold text-amber-300">${sw.watts} W</span>
+                  <span class="px-2.5 py-1 rounded text-[11px] font-mono-tech font-bold ${sw.on ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'}">
+                    ${sw.on ? 'ON' : 'OFF'}
+                  </span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${isSolved ? `
+            <button onclick="mission1.completeCurrentStage('⚡ ECLIPSE LOAD BALANCED AT ' + ${totalWatts} + ' W! Battery discharge stabilized.')" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+              ✅ CONFIRM 450 W ECLIPSE BUS CONFIGURATION
+            </button>
+          ` : ''}
+        `;
+
+        const fb = document.getElementById('puzzleFeedback');
+        if (!allCriticalOn) {
+          fb.textContent = '⚠️ WARNING: You turned off a CRITICAL survival system! Keep Life Support, Flight Computer, and Cabin Heaters ON.';
+          fb.className = 'p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200';
+        } else if (totalWatts > 500) {
+          fb.textContent = `Current draw is ${totalWatts} W. Switch OFF the non-essential Ka-Band Dish, Spectrometer, and Galley Warmer to drop below 500 W!`;
+          fb.className = 'p-3 rounded-xl bg-amber-950/60 border border-amber-500/50 text-xs text-amber-200';
+        } else {
+          fb.textContent = '✔ Perfect! Load is 450 W (<= 500 W) and all 3 critical survival buses remain online.';
+          fb.className = 'p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-xs text-emerald-200';
+        }
+      },
+
+      toggleBreaker(idx) {
+        sfx.play('click');
+        this.powerSwitches[idx].on = !this.powerSwitches[idx].on;
+        this.renderPowerPuzzle();
+      },
+
+      /* PUZZLE 3: LiOH CO2 FILTER REPLACEMENT */
+      renderCo2Puzzle() {
+        document.getElementById('puzzleBadge').textContent = '🟢 [REAL NASA ENGINEERING] • ECLSS LiOH SCRUBBER';
+        document.getElementById('puzzleTitle').textContent = 'LITHIUM HYDROXIDE (LiOH) CO₂ CANISTER REPLACEMENT';
+
+        const canisters = [
+          { slot: 'A', sat: '32%', status: 'NOMINAL', bad: false },
+          { slot: 'B', sat: this.co2Step >= 3 ? '0% (FRESH)' : '98% SATURATED', status: this.co2Step >= 3 ? 'SCRUBBING ACTIVE' : 'BLOCKED (Li₂CO₃ CRUST)', bad: this.co2Step < 3 },
+          { slot: 'C', sat: '41%', status: 'NOMINAL', bad: false },
+          { slot: 'D', sat: '25%', status: 'NOMINAL', bad: false }
+        ];
+
+        document.getElementById('puzzleBody').innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+            <b>Chemical Principle:</b> <span class="font-mono-tech text-cyan-300">2 LiOH(s) + CO₂(g) → Li₂CO₃(s) + H₂O(g)</span>. Lithium Hydroxide removes toxic exhaled carbon dioxide without altering the 21% oxygen supply.
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            ${canisters.map(c => `
+              <div class="p-3 rounded-xl border text-center ${c.bad ? 'bg-rose-950/50 border-rose-500' : 'bg-slate-900 border-emerald-500/40'}">
+                <div class="font-display text-xs font-bold text-white">CANISTER ${c.slot}</div>
+                <div class="font-mono-tech text-sm font-bold my-1 ${c.bad ? 'text-rose-400' : 'text-emerald-400'}">${c.sat}</div>
+                <div class="text-[10px] text-slate-400">${c.status}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- 3-Step Interactive Replacement Procedure for Canister B -->
+          <div class="space-y-2 pt-2">
+            <button onclick="mission1.advanceCo2Step(1)" ${this.co2Step !== 0 ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.co2Step === 0 ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-emerald-400'}">
+              <span>STEP 1: Isolate Manifold Airflow Valve B</span>
+              <span>${this.co2Step >= 1 ? '✔ DONE' : 'CLICK TO ISOLATE'}</span>
+            </button>
+
+            <button onclick="mission1.advanceCo2Step(2)" ${this.co2Step !== 1 ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.co2Step === 1 ? 'bg-rose-500 text-white' : 'bg-slate-800 text-emerald-400'}">
+              <span>STEP 2: Eject Saturated Canister B (98% Li₂CO₃)</span>
+              <span>${this.co2Step >= 2 ? '✔ EJECTED' : 'CLICK TO EJECT'}</span>
+            </button>
+
+            <button onclick="mission1.advanceCo2Step(3)" ${this.co2Step !== 2 ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.co2Step === 2 ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800 text-emerald-400'}">
+              <span>STEP 3: Insert Fresh LiOH Canister & Open Valve B</span>
+              <span>${this.co2Step >= 3 ? '✔ INSTALLED' : 'CLICK TO INSTALL'}</span>
+            </button>
+          </div>
+
+          ${this.co2Step >= 3 ? `
+            <button onclick="mission1.co2 = 1.1; mission1.completeCurrentStage('🫧 FRESH LiOH CANISTER INSTALLED! Cabin CO₂ partial pressure dropping to 1.1 mmHg.')" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+              ✅ VERIFY CO₂ DROP TO 1.1 mmHg & CONTINUE
+            </button>
+          ` : ''}
+        `;
+
+        document.getElementById('puzzleFeedback').textContent =
+          this.co2Step < 3
+            ? 'Complete the 3-step manifold procedure above to replace Canister B safely.'
+            : '✔ Canister B replaced! Cabin CO₂ is scrubbing down to 1.1 mmHg.';
+      },
+
+      advanceCo2Step(stepNum) {
+        sfx.play('click');
+        this.co2Step = stepNum;
+        this.renderCo2Puzzle();
+      },
+
+      /* PUZZLE 5: REACTION WHEEL DESATURATION */
+      renderWheelPuzzle() {
+        document.getElementById('puzzleBadge').textContent = '🟢 [REAL NASA ENGINEERING] • GNC MOMENTUM DUMP';
+        document.getElementById('puzzleTitle').textContent = 'REACTION WHEEL RCS DESATURATION';
+
+        const solved = this.wheelRpm <= 1500;
+        document.getElementById('puzzleBody').innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+            <b>Conservation of Angular Momentum:</b> You cannot simply brake a 5,900 RPM reaction wheel without spinning the spacecraft! You must fire opposing <b>-Y Pitch RCS Thrusters</b> to apply external counter-torque (<span class="font-mono-tech text-cyan-300">τ = r × F</span>) while slowing the wheel.
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5 text-center">
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="text-[10px] font-mono-tech text-slate-400">ROLL (X-AXIS)</div>
+              <div class="font-mono-tech text-sm font-bold text-emerald-400 mt-1">+1,100 RPM</div>
+            </div>
+            <div class="p-3 rounded-xl border ${solved ? 'bg-emerald-950/40 border-emerald-500' : 'bg-rose-950/50 border-rose-500'}">
+              <div class="text-[10px] font-mono-tech text-slate-300">PITCH (Y-AXIS)</div>
+              <div class="font-mono-tech text-base font-bold ${solved ? 'text-emerald-400' : 'text-rose-400'} mt-1">
+                +${this.wheelRpm.toLocaleString()} RPM
+              </div>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <div class="text-[10px] font-mono-tech text-slate-400">YAW (Z-AXIS)</div>
+              <div class="font-mono-tech text-sm font-bold text-emerald-400 mt-1">-800 RPM</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button onclick="mission1.fireRcsPulse('correct')" ${solved ? 'disabled' : ''} class="py-3 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-display font-bold text-xs shadow-lg">
+              🔥 FIRE [-Y PITCH] COUNTER-TORQUE RCS PULSE
+            </button>
+            <button onclick="mission1.fireRcsPulse('wrong')" ${solved ? 'disabled' : ''} class="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-display font-bold text-xs">
+              FIRE [+Y PITCH] SAME-DIRECTION THRUSTER
+            </button>
+          </div>
+
+          ${solved ? `
+            <button onclick="mission1.completeCurrentStage('⚙️ PITCH REACTION WHEEL DESATURATED TO ' + ${this.wheelRpm} + ' RPM! Full attitude control restored.')" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+              ✅ CONFIRM GNC MOMENTUM DUMP COMPLETE
+            </button>
+          ` : ''}
+        `;
+      },
+
+      fireRcsPulse(dir) {
+        const fb = document.getElementById('puzzleFeedback');
+        if (dir === 'correct') {
+          sfx.play('thruster');
+          this.wheelRpm = Math.max(1100, this.wheelRpm - 1600);
+          fb.textContent = `✔ -Y RCS counter-torque pulse fired! Pitch wheel decelerated to ${this.wheelRpm} RPM.`;
+          fb.className = 'p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-xs text-emerald-200';
+        } else {
+          sfx.play('alert');
+          this.wheelRpm = Math.min(6000, this.wheelRpm + 300);
+          fb.textContent = '⚠️ Firing +Y adds torque in the SAME direction, increasing saturation! Fire the opposing [-Y PITCH] thruster instead.';
+          fb.className = 'p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200';
+        }
+        this.renderWheelPuzzle();
+      },
+
+      /* PUZZLE 6: SHACKLETON CRATER LIDAR LANDING SITE & RETRO-BRAKING */
+      renderLandingPuzzle() {
+        document.getElementById('puzzleBadge').textContent = '🟢 [REAL NASA ENGINEERING] • HAZARD DETECTION LIDAR';
+        document.getElementById('puzzleTitle').textContent = 'SHACKLETON CRATER LANDING SITE & RETRO-BRAKING';
+
+        const zones = [
+          { id: 'alpha', name: 'Zone Alpha (Crater Rim Wall)', slope: '18.5° (UNSAFE >10°)', boulders: 'Low', sun: '85%', safe: false, warn: 'Slope is 18.5°! Any lunar lander touching down on a >10° slope risks tipping over.' },
+          { id: 'beta',  name: 'Zone Beta (Ejecta Boulder Field)', slope: '4.2° (Safe)', boulders: 'HIGH (1.5m Rocks)', sun: '70%', safe: false, warn: 'Lidar shows 1.5-meter boulders across Zone Beta that would crush the descent engine bell!' },
+          { id: 'gamma', name: 'Zone Gamma (Connecting Ridge)', slope: '3.8° (<10° SAFE)', boulders: 'None (<0.2m)', sun: '89% Peak Sunlight', safe: true, warn: '✔ Optimal Artemis & Chandrayaan-class site! Flat 3.8° slope, boulder-free, and 89% solar illumination.' }
+        ];
+
+        const chosen = zones.find(z => z.id === this.selectedLandingZone);
+
+        document.getElementById('puzzleBody').innerHTML = `
+          <div class="text-xs text-slate-300">
+            <b>Step 1:</b> Inspect Lidar terrain telemetry and select a safe landing zone (Slope &lt; 10°, No Boulders):
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${zones.map(z => `
+              <div onclick="mission1.selectZone('${z.id}')" class="cursor-pointer p-3 rounded-xl border transition ${this.selectedLandingZone === z.id ? (z.safe ? 'bg-emerald-950/50 border-emerald-400' : 'bg-rose-950/50 border-rose-400') : 'bg-slate-900 border-slate-800 hover:border-slate-600'}">
+                <div class="font-display text-xs font-bold text-white mb-1">${z.name}</div>
+                <div class="text-[11px] font-mono-tech text-slate-300">Slope: <b>${z.slope}</b></div>
+                <div class="text-[11px] font-mono-tech text-slate-300">Boulders: <b>${z.boulders}</b></div>
+                <div class="text-[11px] font-mono-tech text-amber-300">Solar: ${z.sun}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          ${chosen && chosen.safe ? `
+            <div class="p-4 rounded-xl bg-slate-950 border border-cyan-500/40 space-y-3">
+              <div class="text-xs font-bold text-cyan-300">Step 2: Timed Final Descent Retro-Braking Burn</div>
+              <p class="text-[11px] text-slate-300">Click <b>FIRE RETRO-BRAKING BURN</b> when the white altitude cursor is inside the green target zone!</p>
+              <div class="relative w-full h-7 bg-slate-800 rounded-full overflow-hidden border border-slate-600">
+                <div class="absolute top-0 bottom-0 left-[32%] width-[36%] w-[36%] bg-emerald-500/40 border-x-2 border-emerald-400"></div>
+                <div id="retroMarkerCursor" class="absolute top-0 bottom-0 w-3 bg-white rounded-full shadow" style="left:${this.retroMarkerPos}%"></div>
+              </div>
+              <button onclick="mission1.attemptRetroBurn()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+                🔥 FIRE RETRO-BRAKING BURN NOW!
+              </button>
+            </div>
+          ` : ''}
+        `;
+
+        const fb = document.getElementById('puzzleFeedback');
+        if (chosen) {
+          fb.textContent = chosen.warn;
+          fb.className = chosen.safe
+            ? 'p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-xs text-emerald-200'
+            : 'p-3 rounded-xl bg-rose-950/60 border border-rose-500/50 text-xs text-rose-200';
+        }
+      },
+
+      selectZone(zoneId) {
+        sfx.play('click');
+        this.selectedLandingZone = zoneId;
+        this.retroActive = (zoneId === 'gamma');
+        this.renderLandingPuzzle();
+      },
+
+      attemptRetroBurn() {
+        if (this.retroMarkerPos >= 28 && this.retroMarkerPos <= 72) {
+          sfx.play('success');
+          this.retroActive = false;
+          this.completeCurrentStage('🌕 SOFT LUNAR TOUCHDOWN (1.1 m/s) AT SHACKLETON CRATER!');
+        } else {
+          sfx.play('alert');
+          const fb = document.getElementById('puzzleFeedback');
+          fb.textContent = '⏱️ Slightly early/late burn! Wait for the white cursor to pass through the center green zone and click again.';
+          fb.className = 'p-3 rounded-xl bg-amber-950/60 border border-amber-500/50 text-xs text-amber-200';
+        }
+      },
+
+      /* --- STAGE COMPLETION & TRANSITION TO NEXT STAGE --- */
+      completeCurrentStage(msg) {
+        sfx.play('success');
+        this.closePuzzleModal();
+        state.stats.repairsCompleted++;
+        app.addStars(50);
+        document.getElementById('ariaMonitorText').textContent = msg;
+
+        if (this.stage < 6) {
+          this.setupStage(this.stage + 1);
+        } else {
+          // Completed Stage 6 -> Go to Stage 7 Lunar Surface Finale!
+          this.stopLoop();
+          this.enterLunarSurfaceFinale();
+        }
+      },
+
+      /* --- STAGE 7: LUNAR SURFACE CELEBRATION & TIRANGA FLAG --- */
+      enterLunarSurfaceFinale() {
+        app.unlockPatch(1);
+        const surfAvatar = document.getElementById('lunarSurfaceAvatar');
+        surfAvatar.style.background = state.suitColor;
+        surfAvatar.textContent = state.avatarEmoji;
+        document.getElementById('tirangaFlagMonument').classList.add('hidden');
+        document.getElementById('tirangaFlagMonument').classList.remove('flex');
+        app.showScreen('screenLunarSurface');
+      },
+
+      toggleMoonDance() {
+        sfx.play('success');
+        const el = document.getElementById('lunarSurfaceAvatar');
+        const status = document.getElementById('lunarDanceStatus');
+        el.classList.toggle('moon-dance-anim');
+        if (el.classList.contains('moon-dance-anim')) {
+          status.textContent = '🕺 1/6g Lunar Hop Active!';
+        } else {
+          status.textContent = 'EVA Suit Nominal';
+        }
+      },
+
+      plantIndianFlag() {
+        sfx.play('success');
+        const flagEl = document.getElementById('tirangaFlagMonument');
+        flagEl.classList.remove('hidden');
+        flagEl.classList.add('flex');
+        app.addStars(50);
+      },
+
+      openLunarQuizAndReport() {
+        quizEngine.startQuiz(1);
+      }
+    };
+
+    // Keyboard Event Listeners for Ship Movement & [E] Interaction
+    window.addEventListener('keydown', (e) => {
+      mission1.keys[e.code] = true;
+      if (e.code === 'KeyE' && !document.getElementById('screenShipGame').classList.contains('hidden')) {
+        if (document.getElementById('puzzleModal').classList.contains('hidden')) {
+          mission1.triggerActiveInteraction();
+        }
+      }
+    });
+    window.addEventListener('keyup', (e) => {
+      mission1.keys[e.code] = false;
+    });
+
+    /**************************************************************
+     * 5. MISSIONS 2 & 3 INTERACTIVE SCIENCE LABS CONTROLLER
+     **************************************************************/
+    const scienceLabs = {
+      // Mission 2 State
+      sunshieldDeployed: false,
+      miriCryoActive: false,
+      dipsClicked: [false, false, false],
+
+      // Mission 3 State
+      radioFreq: 1120,
+      rfiFilterOn: false,
+      alienStep: 0,
+
+      /* --- MISSION 2: EXOPLANET TOI-700 d LAB --- */
+      startMission2() {
+        this.sunshieldDeployed = false;
+        this.miriCryoActive = false;
+        this.dipsClicked = [false, false, false];
+        app.showScreen('screenScienceLab');
+        this.renderMission2();
+      },
+
+      renderMission2() {
+        const tempK = !this.sunshieldDeployed ? 295 : (!this.miriCryoActive ? 40 : 6.7);
+        const stage1Done = this.sunshieldDeployed && this.miriCryoActive;
+        const allDipsFound = this.dipsClicked.every(Boolean);
+
+        const el = document.getElementById('scienceLabContainer');
+        el.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4 mb-5">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-tech font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+                🟢 [REAL NASA TESS & JWST SCIENCE] • MISSION 02
+              </span>
+              <h2 class="font-display text-xl sm:text-2xl font-bold text-white mt-1">
+                EXOPLANET DISCOVERY LAB: HABITABLE WORLD TOI-700 d
+              </h2>
+            </div>
+            <button onclick="app.showScreen('screenMissionHub')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">← Back to Hub</button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Stage 1: JWST Passive Sunshield + Active MIRI Helium Cryocooler -->
+            <div class="bg-slate-950/90 rounded-2xl p-4 border ${stage1Done ? 'border-emerald-500/60' : 'border-cyan-500/40'} space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono-tech text-cyan-300 uppercase">STAGE 1 • INFRARED THERMAL MANAGEMENT</span>
+                <span class="font-mono-tech text-sm font-bold ${stage1Done ? 'text-emerald-400' : 'text-amber-300'}">Detector: ${tempK} K</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                <b>Scientific Distinction:</b> JWST’s 5-layer Kapton sunshield passively cools the telescope in deep space to <b>~40 K</b>. However, the Mid-Infrared Instrument (MIRI) requires an <b>active closed-cycle Helium Cryocooler</b> to reach its operating temperature of <b>6.7 K (-266.5°C)</b> so thermal noise doesn't blind the sensor!
+              </p>
+              <div class="space-y-2 pt-1">
+                <button onclick="scienceLabs.sunshieldDeployed=true; sfx.play('click'); scienceLabs.renderMission2();" ${this.sunshieldDeployed ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.sunshieldDeployed ? 'bg-slate-800 text-emerald-400' : 'bg-cyan-500 text-slate-950'}">
+                  <span>1. Tension 5-Layer Kapton Sunshield (Passive Cooling → 40 K)</span>
+                  <span>${this.sunshieldDeployed ? '✔ 40 K REACHED' : 'DEPLOY'}</span>
+                </button>
+                <button onclick="scienceLabs.miriCryoActive=true; sfx.play('success'); scienceLabs.renderMission2();" ${(!this.sunshieldDeployed || this.miriCryoActive) ? 'disabled' : ''} class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.miriCryoActive ? 'bg-slate-800 text-emerald-400' : (this.sunshieldDeployed ? 'bg-amber-400 text-slate-950' : 'bg-slate-900 text-slate-600')}">
+                  <span>2. Engage Active Helium Pulse-Tube Cryocooler (MIRI → 6.7 K)</span>
+                  <span>${this.miriCryoActive ? '✔ 6.7 K LOCKED' : 'ACTIVATE CRYO'}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Stage 2: TESS Transit Photometry Light Curve -->
+            <div class="bg-slate-950/90 rounded-2xl p-4 border ${allDipsFound ? 'border-emerald-500/60' : 'border-slate-800'} space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono-tech text-amber-300 uppercase">STAGE 2 • TESS TRANSIT LIGHT-CURVE PHOTOMETRY</span>
+                <span class="font-mono-tech text-xs text-cyan-300">${this.dipsClicked.filter(Boolean).length}/3 Transits Tagged</span>
+              </div>
+              <p class="text-xs text-slate-300">
+                ${stage1Done
+                  ? 'Click all <b>3 periodic brightness dips (-0.13% flux drop every 37.4 days)</b> on the stellar light curve below to confirm TOI-700 d’s radius and habitable-zone orbit!'
+                  : '🔒 Cool the detector to 6.7 K in Stage 1 first to unlock crisp transit photometry.'}
+              </p>
+
+              <!-- Interactive SVG Transit Light Curve -->
+              <div class="bg-slate-900 rounded-xl p-3 border border-slate-800">
+                <svg viewBox="0 0 500 130" class="w-full h-32">
+                  <!-- Grid lines -->
+                  <line x1="30" y1="30" x2="480" y2="30" stroke="#334155" stroke-dasharray="4 4"/>
+                  <line x1="30" y1="90" x2="480" y2="90" stroke="#334155" stroke-dasharray="4 4"/>
+                  <!-- Flux Curve with 3 Transit Dips at x=110, 260, 410 -->
+                  <polyline fill="none" stroke="#38bdf8" stroke-width="2.5"
+                    points="30,30 95,30 110,92 125,30 245,30 260,92 275,30 395,30 410,92 425,30 480,30" />
+                  <!-- Interactive Click Targets on the 3 Dips -->
+                  ${[
+                    { idx: 0, cx: 110, day: 'Day 37.4' },
+                    { idx: 1, cx: 260, day: 'Day 74.8' },
+                    { idx: 2, cx: 410, day: 'Day 112.2' }
+                  ].map(d => `
+                    <g onclick="scienceLabs.tagTransitDip(${d.idx})" class="cursor-pointer">
+                      <circle cx="${d.cx}" cy="92" r="14" fill="${this.dipsClicked[d.idx] ? '#10b981' : '#f59e0b'}" stroke="#ffffff" stroke-width="2"/>
+                      <text x="${d.cx}" y="120" text-anchor="middle" fill="#cbd5e1" font-size="10" font-family="monospace">${d.day}</text>
+                    </g>
+                  `).join('')}
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discovery Finale & Mandatory Artist Visualization Epistemic Disclaimer -->
+          ${stage1Done && allDipsFound ? `
+            <div class="mt-5 p-5 rounded-2xl bg-gradient-to-r from-indigo-950/90 via-slate-900 to-cyan-950/90 border-2 border-cyan-400/60 space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="px-3 py-1 rounded-full text-[11px] font-mono-tech font-bold bg-purple-500/20 text-purple-200 border border-purple-400">
+                  🟣 [HYPOTHETICAL SURFACE VISUALIZATION • REAL ORBITAL DATA]
+                </span>
+                <span class="font-mono-tech text-xs text-emerald-300">DISTANCE: 101.4 LIGHT-YEARS (DORADO CONSTELLATION)</span>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                <div class=" flex flex-col items-center justify-center p-4 bg-slate-950/80 rounded-2xl border border-cyan-500/30">
+                  <div class="w-28 h-28 rounded-full bg-gradient-to-br from-rose-400 via-indigo-600 to-teal-400 shadow-[0_0_35px_rgba(56,189,248,0.5)] flex items-center justify-center text-5xl float-slow">
+                    🪐
+                  </div>
+                  <div class="text-xs font-display font-bold text-cyan-300 mt-2">TOI-700 d</div>
+                  <div class="text-[10px] font-mono-tech text-slate-400">1.14 R⊕ • 37.42-Day Orbit</div>
+                </div>
+
+                <div class="md:col-span-2 space-y-2 text-xs">
+                  <h3 class="font-display text-lg font-bold text-white">EXOPLANET TOI-700 d CONFIRMED!</h3>
+                  <p class="text-slate-200 leading-relaxed">
+                    <b>Confirmed NASA Science:</b> Using transit photometry, NASA’s TESS mission proved that TOI-700 d has a radius of <b>1.14 Earth radii</b> and orbits within its red dwarf star's conservative habitable zone every <b>37.42 days</b>, receiving <b>86% of Earth's solar energy</b>.
+                  </p>
+                  <div class="p-3 rounded-xl bg-amber-500/15 border border-amber-400/50 text-amber-200">
+                    <b>SCIENTIFIC INTEGRITY DISCLAIMER:</b> This visual depiction is an <b>imagined artist's representation</b>. The actual surface conditions, oceans, and atmospheric composition of TOI-700 d have not yet been directly resolved by telescopes.
+                  </div>
+                  <div class="pt-2">
+                    <button onclick="app.unlockPatch(2); quizEngine.startQuiz(2);" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+                      🏅 COMPLETE MISSION 2 & TAKE SCIENCE CHECK →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        `;
+      },
+
+      tagTransitDip(idx) {
+        if (!this.sunshieldDeployed || !this.miriCryoActive) {
+          sfx.play('alert');
+          return;
+        }
+        sfx.play('success');
+        this.dipsClicked[idx] = true;
+        this.renderMission2();
+      },
+
+      /* --- MISSION 3: 1420 MHz RADIO ASTRONOMY & ASTROBIOLOGY LAB --- */
+      startMission3() {
+        this.radioFreq = 1120;
+        this.rfiFilterOn = false;
+        this.alienStep = 0;
+        app.showScreen('screenScienceLab');
+        this.renderMission3();
+      },
+
+      renderMission3() {
+        const freqLocked = Math.abs(this.radioFreq - 1420) <= 15 && this.rfiFilterOn;
+        const el = document.getElementById('scienceLabContainer');
+
+        const dialogues = [
+          {
+            alienMsg: '“Greetings, Explorer of Sol! In this hypothetical First-Contact simulation, let us test your knowledge of REAL NASA astrobiology discoveries. First: Why did your radio astronomers tune to 1420.4 MHz (21 cm wavelength)?”',
+            options: [
+              { text: 'It is the hyperfine spin-flip transition frequency of neutral hydrogen—the most abundant element in the universe.', ok: true },
+              { text: 'NASA already confirmed an alien civilization broadcasting on 1420 MHz in 1997.', ok: false }
+            ]
+          },
+          {
+            alienMsg: '“Correct! Neutral hydrogen permeates the cosmos, and note carefully that SETI has detected 0 confirmed alien transmissions to date. Second question: What real habitability evidence is NASA’s Europa Clipper investigating at Jupiter’s moon Europa?”',
+            options: [
+              { text: 'Confirmed fossilized alien cities on Europa’s surface.', ok: false },
+              { text: 'Magnetic-field and plume evidence of a global subsurface saltwater ocean beneath Europa’s icy crust.', ok: true }
+            ]
+          },
+          {
+            alienMsg: '“Brilliant! And finally, what did NASA’s OSIRIS-REx capsule actually bring back from near-Earth asteroid Bennu in 2023?”',
+            options: [
+              { text: 'Carbon-rich regolith, hydrated clay minerals, and prebiotic organic molecules (the chemical building blocks of life).', ok: true },
+              { text: 'Living extraterrestrial bacteria.', ok: false }
+            ]
+          }
+        ];
+
+        const curD = dialogues[Math.min(2, this.alienStep)];
+
+        el.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4 mb-5">
+            <div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono-tech font-bold bg-purple-500/20 text-purple-300 border border-purple-400/40">
+                🟣 [SPECULATIVE FIRST-CONTACT SCENARIO • REAL RADIO ASTRONOMY & ASTROBIOLOGY]
+              </span>
+              <h2 class="font-display text-xl sm:text-2xl font-bold text-white mt-1">
+                1420 MHz RADIO ASTRONOMY & ASTROBIOLOGY LAB
+              </h2>
+            </div>
+            <button onclick="app.showScreen('screenMissionHub')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs">← Back to Hub</button>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Stage 1: 1420 MHz Neutral Hydrogen Spectrometer -->
+            <div class="bg-slate-950/90 rounded-2xl p-4 border ${freqLocked ? 'border-emerald-500/60' : 'border-purple-500/40'} space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono-tech text-purple-300 uppercase">STAGE 1 • DEEP SPACE RADIO SPECTROMETER</span>
+                <span class="font-mono-tech text-sm font-bold ${freqLocked ? 'text-emerald-400' : 'text-amber-300'}">${this.radioFreq} MHz</span>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Tune the receiver slider to the <b>Neutral Hydrogen Line (1420 MHz / 21 cm)</b> inside the cosmic "Water Hole" quiet zone, and engage the <b>Earth RFI Doppler Filter</b> to remove human satellite noise!
+              </p>
+
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <label class="block text-[11px] font-mono-tech text-cyan-300">
+                  FREQUENCY TUNER: ${this.radioFreq} MHz (Target: 1420 MHz)
+                </label>
+                <input type="range" min="1000" max="1700" step="10" value="${this.radioFreq}"
+                  oninput="scienceLabs.radioFreq=parseInt(this.value); scienceLabs.renderMission3();"
+                  class="w-full accent-cyan-400 cursor-pointer" />
+              </div>
+
+              <button onclick="scienceLabs.rfiFilterOn=!scienceLabs.rfiFilterOn; sfx.play('click'); scienceLabs.renderMission3();" class="w-full py-2.5 px-4 rounded-xl font-display text-xs font-bold flex justify-between items-center ${this.rfiFilterOn ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-200 border border-slate-700'}">
+                <span>Earth Satellite RFI Notch Filter</span>
+                <span>${this.rfiFilterOn ? '✔ FILTER ACTIVE' : 'CLICK TO ENABLE'}</span>
+              </button>
+            </div>
+
+            <!-- Stage 2: Interactive Alien Astrobiology Thought Experiment -->
+            <div class="bg-slate-950/90 rounded-2xl p-4 border ${this.alienStep >= 3 ? 'border-emerald-500/60' : 'border-slate-800'} space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-mono-tech text-cyan-300 uppercase">STAGE 2 • ASTROBIOLOGY EXCHANGE (${Math.min(3, this.alienStep)}/3)</span>
+                <span class="text-[10px] font-mono-tech px-2 py-0.5 rounded bg-purple-500/20 text-purple-200">THOUGHT EXPERIMENT</span>
+              </div>
+
+              ${!freqLocked ? `
+                <div class="p-6 text-center text-xs text-slate-400">
+                  🔒 Lock the receiver onto <b>1420 MHz</b> and enable the <b>Earth RFI Filter</b> in Stage 1 to open the Astrobiology Simulation!
+                </div>
+              ` : this.alienStep < 3 ? `
+                <div class="p-3.5 rounded-xl bg-indigo-950/50 border border-purple-400/40 flex gap-3 items-start">
+                  <div class="text-3xl">👽</div>
+                  <p class="text-xs text-slate-100 leading-relaxed italic">${curD.alienMsg}</p>
+                </div>
+                <div class="space-y-2">
+                  ${curD.options.map(opt => `
+                    <button onclick="scienceLabs.answerAlien(${opt.ok})" class="w-full text-left p-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-slate-200 transition">
+                      ▶ ${opt.text}
+                    </button>
+                  `).join('')}
+                </div>
+                <div id="alienFeedbackBox" class="text-xs text-amber-300"></div>
+              ` : `
+                <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/50 space-y-3 text-xs">
+                  <div class="font-display font-bold text-emerald-300 text-sm">🌌 COSMIC PERSPECTIVE DEBRIEF UNLOCKED!</div>
+                  <p class="text-slate-200 leading-relaxed">
+                    <b>Scientific Fact vs. Storytelling:</b> While humanity has <b>not yet detected any confirmed signals or life beyond Earth</b> (and the Voyager Golden Record remains a time capsule drifting through interstellar space), NASA missions like <b>Europa Clipper</b>, <b>Perseverance</b>, <b>OSIRIS-REx</b>, and <b>JWST</b> are actively discovering organic molecules and subsurface oceans across our solar system!
+                  </p>
+                  <button onclick="app.unlockPatch(3); quizEngine.startQuiz(3);" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-display font-bold text-sm shadow-lg">
+                    🏅 COMPLETE MISSION 3 & TAKE FINAL SCIENCE CHECK →
+                  </button>
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      },
+
+      answerAlien(isCorrect) {
+        if (isCorrect) {
+          sfx.play('success');
+          this.alienStep++;
+          app.addStars(35);
+          this.renderMission3();
+        } else {
+          sfx.play('alert');
+          const fb = document.getElementById('alienFeedbackBox');
+          if (fb) fb.textContent = '⚠️ Remember to separate fictional sci-fi myths from verified NASA scientific evidence! Try the other option.';
+        }
+      }
+    };
+
+    /**************************************************************
+     * 6. POST-MISSION 3-QUESTION SCIENCE ASSESSMENT & REPORT
+     **************************************************************/
+    const quizEngine = {
+      currentMission: 1,
+      qIndex: 0,
+      score: 0,
+
+      questionsByMission: {
+        1: [
+          {
+            q: 'Why did we replace the Lithium Hydroxide (LiOH) canister in the ECLSS bay when cabin CO₂ climbed to 4.6 mmHg?',
+            opts: [
+              'LiOH chemically reacts with exhaled CO₂ gas to trap it as solid lithium carbonate (Li₂CO₃) so the crew doesn’t suffer CO₂ toxicity.',
+              'LiOH generates nuclear power during a lunar eclipse.',
+              'LiOH increases the thrust of the Hall-effect ion engine.'
+            ],
+            ans: 0,
+            explain: 'Lithium hydroxide canisters scrub carbon dioxide from cabin air (2 LiOH + CO₂ → Li₂CO₃ + H₂O), whereas oxygen percentage is regulated separately.'
+          },
+          {
+            q: 'Why couldn’t we use a low-thrust Hall-Effect Ion Thruster to land our spacecraft on the Moon?',
+            opts: [
+              'Ion engines only work inside Earth’s atmosphere.',
+              'Ion thrusters produce gentle millinewtons of thrust (TWR ≈ 0.001), which cannot brake fast enough against lunar gravity (1.62 m/s²).',
+              'Ion engines are heavier than the Saturn V rocket.'
+            ],
+            ans: 1,
+            explain: 'Planetary surface descent requires a Thrust-to-Weight Ratio (TWR) greater than 1.0 using high-thrust chemical engines.'
+          },
+          {
+            q: 'Why is the Lunar South Pole (Shackleton Crater & Chandrayaan-3 / Artemis region) so valuable to space agencies?',
+            opts: [
+              'It has a thick breathable nitrogen atmosphere.',
+              'Permanently Shadowed Regions trap water ice at <100 K right next to sunlit crater rims that receive ~89% year-round solar power.',
+              'There is zero gravity at the Lunar South Pole.'
+            ],
+            ans: 1,
+            explain: 'The Moon’s tiny 1.54° axial tilt creates dark polar cold traps with water ice alongside almost continuously sunlit peaks.'
+          }
+        ],
+        2: [
+          {
+            q: 'How does the James Webb Space Telescope cool its Mid-Infrared Instrument (MIRI) down to ~6.7 Kelvin?',
+            opts: [
+              'Using a 5-layer passive sunshield (~40 K) combined with a dedicated active closed-cycle Helium cryocooler (~6.7 K).',
+              'By dipping the telescope into liquid nitrogen lakes on Mars.',
+              'Using open cabin windows.'
+            ],
+            ans: 0,
+            explain: 'Passive sunshield layers block heat down to ~40 K, and MIRI’s active helium pulse-tube cryocooler brings the mid-IR detector to 6.7 K.'
+          },
+          {
+            q: 'How did NASA’s TESS telescope discover the Earth-sized exoplanet TOI-700 d?',
+            opts: [
+              'By landing a rover on TOI-700 d’s continents.',
+              'By measuring periodic dips in starlight (transit photometry) every 37.4 days as the planet crosses in front of its star.',
+              'By radar-mapping its oceans from the Moon.'
+            ],
+            ans: 1,
+            explain: 'Transit photometry measures the tiny fraction of starlight blocked when an exoplanet transits across its host star’s disk.'
+          },
+          {
+            q: 'Which statement about TOI-700 d is scientifically accurate?',
+            opts: [
+              'Its radius (1.14 R⊕) and 37.4-day habitable-zone orbit are confirmed, while any depiction of surface oceans or continents is an artist’s visualization.',
+              'Photographs of purple trees on TOI-700 d were taken in 2024.',
+              'TOI-700 d orbits inside our own Solar System.'
+            ],
+            ans: 0,
+            explain: 'Current telescopes measure transit depth and orbital period; surface visuals of distant exoplanets are hypothetical artist concepts.'
+          }
+        ],
+        3: [
+          {
+            q: 'Why is 1420.4 MHz (21 cm wavelength) important in radio astronomy?',
+            opts: [
+              'It is the natural hyperfine transition frequency of neutral hydrogen, used to map galaxies and search the cosmic quiet zone.',
+              'It is a confirmed alien television broadcast channel.',
+              'It only exists inside Earth’s ionosphere.'
+            ],
+            ans: 0,
+            explain: 'Neutral hydrogen atoms emit 1420.4 MHz radio waves when their electron spin flips, making it a universal landmark in radio astronomy.'
+          },
+          {
+            q: 'What is NASA’s Europa Clipper mission designed to investigate?',
+            opts: [
+              'Whether Jupiter’s moon Europa has conditions suitable for life (habitability) in its subsurface saltwater ocean.',
+              'Establishing a resort on the Sun.',
+              'Replacing the Hubble Space Telescope in low Earth orbit.'
+            ],
+            ans: 0,
+            explain: 'Europa Clipper performs multiple flybys to measure ice thickness, ocean salinity, and astrobiological habitability.'
+          },
+          {
+            q: 'Has humanity ever received a confirmed radio signal from an extraterrestrial civilization?',
+            opts: [
+              'No—SETI has 0 confirmed extraterrestrial signals to date, though astrobiologists have found organic building blocks on asteroids like Bennu.',
+              'Yes, the Voyager Golden Record sent back a reply in 2018.',
+              'Yes, every pulsar is an artificial beacon.'
+            ],
+            ans: 0,
+            explain: 'Distinguishing real scientific evidence (organic molecules, subsurface oceans) from speculative fiction is the foundation of space science.'
+          }
+        ]
+      },
+
+      startQuiz(missionNum) {
+        sfx.play('click');
+        this.currentMission = missionNum;
+        this.qIndex = 0;
+        this.score = 0;
+        document.getElementById('quizModal').classList.remove('hidden');
+        this.renderQuestion();
+      },
+
+      renderQuestion() {
+        const list = this.questionsByMission[this.currentMission];
+        const content = document.getElementById('quizModalContent');
+
+        if (this.qIndex >= list.length) {
+          this.renderFinalMissionReport();
+          return;
+        }
+
+        const item = list[this.qIndex];
+        content.innerHTML = `
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono-tech text-amber-300">POST-MISSION SCIENCE CHECK • QUESTION ${this.qIndex + 1} OF 3</span>
+            <span class="text-xs font-mono-tech text-cyan-300">+50 ✨ Stars / Correct Answer</span>
+          </div>
+          <h3 class="font-display text-base sm:text-lg font-bold text-white my-3">${item.q}</h3>
+          <div class="space-y-2.5">
+            ${item.opts.map((opt, idx) => `
+              <button onclick="quizEngine.submitAnswer(${idx})" class="w-full text-left p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs sm:text-sm text-slate-200 transition">
+                <b>${String.fromCharCode(65 + idx)}.</b> ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="quizImmediateFeedback" class="mt-3 hidden"></div>
+        `;
+      },
+
+      submitAnswer(choiceIdx) {
+        const list = this.questionsByMission[this.currentMission];
+        const item = list[this.qIndex];
+        const fb = document.getElementById('quizImmediateFeedback');
+        fb.classList.remove('hidden');
+
+        if (choiceIdx === item.ans) {
+          sfx.play('success');
+          this.score++;
+          app.addStars(50);
+          fb.className = 'mt-3 p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-400 text-xs text-emerald-200 space-y-2';
+          fb.innerHTML = `
+            <div class="font-bold text-emerald-300">✔ CORRECT! (+50 ✨ Stars)</div>
+            <p>${item.explain}</p>
+            <button onclick="quizEngine.qIndex++; quizEngine.renderQuestion();" class="px-4 py-2 rounded-lg bg-emerald-400 text-slate-950 font-display font-bold text-xs">
+              NEXT →
+            </button>
+          `;
+        } else {
+          sfx.play('alert');
+          fb.className = 'mt-3 p-3.5 rounded-xl bg-amber-950/80 border border-amber-400 text-xs text-amber-200 space-y-2';
+          fb.innerHTML = `
+            <div class="font-bold text-amber-300">💡 SCIENTIFIC EXPLANATION:</div>
+            <p>${item.explain}</p>
+            <button onclick="quizEngine.qIndex++; quizEngine.renderQuestion();" class="px-4 py-2 rounded-lg bg-amber-400 text-slate-950 font-display font-bold text-xs">
+              CONTINUE →
+            </button>
+          `;
+        }
+      },
+
+      renderFinalMissionReport() {
+        sfx.play('success');
+        state.stats.quizzesAccomplished++;
+        const content = document.getElementById('quizModalContent');
+        content.innerHTML = `
+          <div class="text-center space-y-4">
+            <div class="text-5xl">🏅✨</div>
+            <div class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400 text-emerald-300 text-xs font-mono-tech">
+              MISSION 0${this.currentMission} OFFICIAL NASA DEBRIEF REPORT
+            </div>
+            <h3 class="font-display text-2xl font-black text-white">
+              MISSION ACCOMPLISHED, ${state.cadetName.toUpperCase()}!
+            </h3>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+              <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="text-[10px] font-mono-tech text-slate-400">SCIENCE QUIZ</div>
+                <div class="font-mono-tech text-base font-bold text-emerald-400">${this.score} / 3</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="text-[10px] font-mono-tech text-slate-400">TOTAL STARS</div>
+                <div class="font-mono-tech text-base font-bold text-amber-300">✨ ${state.stars}</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="text-[10px] font-mono-tech text-slate-400">REPAIRS DONE</div>
+                <div class="font-mono-tech text-base font-bold text-cyan-300">${state.stats.repairsCompleted}</div>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+                <div class="text-[10px] font-mono-tech text-slate-400">PATCH STATUS</div>
+                <div class="font-mono-tech text-base font-bold text-purple-300">★ UNLOCKED</div>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-950/90 border border-slate-800 text-left text-xs text-slate-300 space-y-1.5">
+              <div class="font-bold text-cyan-300 uppercase font-mono-tech">KEY ENGINEERING & SCIENCE TAKEAWAYS MASTERED:</div>
+              <p>• <b>Spacecraft Trade-Offs:</b> Every payload must fit its rocket’s Trans-Lunar Injection mass limit and match propulsion Thrust-to-Weight (TWR) to the target gravity well.</p>
+              <p>• <b>Life Support & Attitude Control:</b> LiOH canisters chemically scrub CO₂, solar eclipses require strict wattage load-shedding, and saturated reaction wheels require external RCS counter-torque.</p>
+              <p>• <b>Scientific Honesty:</b> Separating empirically confirmed telemetry (transit light curves, 1420 MHz hydrogen line, polar ice traps) from artist visualizations and thought experiments.</p>
+            </div>
+
+            <div class="flex flex-wrap gap-3 justify-center pt-2">
+              <button onclick="document.getElementById('quizModal').classList.add('hidden'); app.showScreen('screenMissionHub');" class="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-display font-bold text-xs shadow-lg">
+                🚀 SELECT NEXT MISSION
+              </button>
+              <button onclick="document.getElementById('quizModal').classList.add('hidden'); app.showScreen('screenCards');" class="px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-display font-bold text-xs shadow-lg">
+                🃏 REDEEM STARS FOR SPACE CARDS
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    // Initialize Application on Window Load
+    window.onload = function () {
+      app.init();
+    };
+  </script>
+</body>
+</html>
