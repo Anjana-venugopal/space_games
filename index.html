@@ -70,7 +70,7 @@ const cur=()=>G.mode=='lobby'||G.mode=='fin'?null:M[G.mi].steps[G.si];
 const $h=(i,h)=>$(i).innerHTML=h;
 /* ---------- lobby ---------- */
 function lobby(){G.mode='lobby';['hud','alert','pad','fb','mod'].forEach(i=>$(i).classList.add('hide'));$('lobby').classList.remove('hide');
-$h('lobby',`<div class="panel" style="width:min(420px,100%)"><h2>ASTRO-QUEST: ODYSSEY</h2><small>Build your astronaut, then pick a mission.</small>
+$h('lobby',`<div class="panel" style="width:min(420px,100%)"><h2>SABOTIX</h2><small>Build your astronaut, then pick a mission.</small>
 <p class="row"><b>Callsign</b> <input type="text" maxlength="10" value="${S.name}" oninput="S.name=this.value.toUpperCase()||'ARYA';sv()" style="width:130px"></p>
 <div class="row"><b>Suit</b>${COL.map((q,i)=>`<button class="sw ${S.col==i?'on':''}" style="background:${q[0]}" onclick="S.col=${i};sv();lobby()"></button>`).join('')}</div>
 <div class="row"><b>Patch</b>${PAT.map((q,i)=>`<button class="${S.pat==i?'on':''}" onclick="S.pat=${i};sv();lobby()">${q}</button>`).join('')}</div>
