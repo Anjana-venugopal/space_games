@@ -133,7 +133,7 @@ function bg(){x.fillStyle='#030612';x.fillRect(0,0,W,H);const sp=G.mode=='out'?2
 function drawLobby(){x.fillStyle='#334155';x.fillRect(0,0,W,H);x.fillStyle='#475569';x.fillRect(0,0,W,250);for(let i=0;i<5;i++){rr(60+i*60,170+i*-6,44,60,8,'#1e3a8a','#0f172a');rr(64+i*60,176+i*-6,36,16,4,'#38bdf8')}
 rr(330,40,160,150,18,'#334155','#0f172a');x.beginPath();x.moveTo(410,48);x.lineTo(410,182);x.stroke();x.strokeStyle='#854d0e';x.lineWidth=5;for(let i=0;i<10;i++){x.beginPath();x.moveTo(i*100,250);x.lineTo(i*100,H);x.stroke()}x.beginPath();x.moveTo(0,400);x.lineTo(W,400);x.stroke();
 rr(80,400,130,100,8,'#365314','#0f172a');rr(560,330,120,100,8,'#365314','#0f172a');
-const t=Date.now()/220;A(200+Math.sin(t/9)*50,330,1,Math.cos(t/9)>0?1:-1,t,'ingy',3);A(540,300,1,-1,t*.8,'bob',1);A(260,440,2.8,1,0,S.name,S.col);
+const t=Date.now()/220;A(200+Math.sin(t/9)*50,330,1,Math.cos(t/9)>0?1:-1,t,'anvi',3);A(540,300,1,-1,t*.8,'bob',1);A(260,440,2.8,1,0,S.name,S.col);
 x.font='bold 13px Orbitron,sans-serif';x.fillStyle='#fde047';x.fillText('Dropship boarding lobby',20,520)}
 function room(id,r){const[rx,ry,rw,rh,nm,fc]=r,cx=rx+rw/2,top=ry<200,tg=cur()&&cur().r==id&&cur().k!='met',hy=top?ry+3:ry+rh-37,dy=top?ry+rh:ry,fy=top?ry:ry+rh,cy=C[id][1];
 rr(rx-6,ry-6,rw+12,rh+12,12,'#020617');rr(rx,ry,rw,rh,8,fc);x.strokeStyle='#ffffff12';x.lineWidth=1;for(let g=rx+20;g<rx+rw;g+=20){x.beginPath();x.moveTo(g,ry);x.lineTo(g,ry+rh);x.stroke()}
