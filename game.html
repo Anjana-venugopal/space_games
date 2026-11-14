@@ -129,10 +129,10 @@
     <i class="fa-solid fa-meteor text-2xl sm:text-3xl text-yellow-200 animate-bounce"></i>
     <div>
       <div class="font-orbitron font-black text-xs sm:text-sm text-white tracking-wider">
-        🚨 CLASS-4 FIREBALL METEORITE INCOMING! IMPACT IN <span id="meteorCountdownNum">10.0</span>s!
+        🚨 METEORITE #<span id="meteorIndexNum">1</span> OF <span id="meteorTotalNum">3</span> INCOMING! IMPACT IN <span id="meteorCountdownNum">14.0</span>s!
       </div>
       <div class="text-[11px] font-mono-tech text-yellow-100">
-        Switch to <b>OUTSIDE VIEW [V]</b> immediately and steer your rocket out of its crimson trajectory!
+        Switch to <b>OUTSIDE SPACECRAFT VIEW [V]</b> and steer your spacecraft out of its trajectory!
       </div>
     </div>
     <button onclick="game.setViewMode('outside')" class="px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-900 text-amber-300 border border-amber-300 font-orbitron font-black text-xs shrink-0 shadow-lg">
@@ -173,7 +173,7 @@
         <div class="flex flex-col gap-1.5 pt-0.5">
           <div class="flex flex-wrap items-center gap-2">
             <!-- Hull Integrity Bar -->
-            <div class="bg-slate-900/95 border-2 border-slate-500 rounded-full px-3 py-1 flex items-center gap-2 shadow-lg min-w-[190px] sm:min-w-[240px]">
+            <div class="bg-slate-900/95 border-2 border-slate-500 rounded-full px-3 py-1 flex items-center gap-2 shadow-lg min-w-[190px] sm:min-w-[230px]">
               <span class="text-[10px] font-mono-tech uppercase text-slate-200 font-bold whitespace-nowrap">Hull Armor</span>
               <div class="flex-1 h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-700">
                 <div id="hudHullBar" class="h-full bg-gradient-to-r from-emerald-500 to-lime-400 transition-all duration-300" style="width: 100%;"></div>
@@ -183,9 +183,15 @@
 
             <!-- 3-Strike Meteor Impact Shields -->
             <div class="bg-slate-950/95 border border-rose-500/50 rounded-full px-3 py-1 flex items-center gap-1.5 text-[10px] font-mono-tech">
-              <span class="text-rose-300 font-bold">METEOR HITS:</span>
+              <span class="text-rose-300 font-bold">SHIELD:</span>
               <span id="hudStrikeIcons" class="tracking-widest text-xs">🛡️🛡️🛡️</span>
-              <span id="hudStrikeCount" class="text-slate-400">(0/3)</span>
+              <span id="hudStrikeCount" class="text-slate-400">(0/3 Hits)</span>
+            </div>
+
+            <!-- Total Meteorite Wave Progress (Strictly 3 to 4 Meteorites!) -->
+            <div class="bg-slate-950/95 border border-cyan-500/50 rounded-full px-3 py-1 flex items-center gap-1.5 text-[10px] font-mono-tech text-cyan-300">
+              <span>☄️ METEORS DODGED:</span>
+              <b id="hudMeteorsCleared">0 / 3</b>
             </div>
           </div>
 
@@ -199,13 +205,13 @@
         </div>
       </div>
 
-      <!-- Center Top: Giant Arcade Score / Distance Counter (Visible in Outside Rocket Flight Mode) -->
+      <!-- Center Top: Giant Arcade Score / Meteorite Wave Counter (Visible in Outside Spacecraft Mode) -->
       <div id="arcadeScoreHud" class="hidden pointer-events-none flex-col items-center">
-        <div id="arcadeScoreDigits" class="font-orbitron font-black text-4xl sm:text-5xl tracking-widest text-white drop-shadow-[0_4px_12px_rgba(56,189,248,0.85)]">
-          0840
+        <div id="arcadeScoreDigits" class="font-orbitron font-black text-3xl sm:text-4xl tracking-widest text-white drop-shadow-[0_4px_12px_rgba(56,189,248,0.85)]">
+          METEORITES CLEARED: 0 / 3
         </div>
         <div class="text-[10px] font-mono-tech uppercase text-cyan-300 bg-slate-950/85 px-3 py-0.5 rounded-full border border-cyan-500/40 mt-1">
-          STEER ROCKET: WASD / ARROWS • DODGE BLAZING METEORITES & COLLECT DATA ORBS (TARGET: 1120)
+          PILOT ORION/GAGANYAAN SPACECRAFT (WASD / ARROWS) • DODGE THE 3 TO 4 METEORITES & COLLECT DATA ORBS
         </div>
       </div>
 
@@ -213,7 +219,7 @@
       <div class="flex items-center gap-2 pointer-events-auto">
         <button id="btnSwitchView" onclick="game.toggleViewMode()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-orbitron font-black text-xs sm:text-sm shadow-lg shadow-cyan-500/30 border-2 border-white flex items-center gap-2 transition active:scale-95">
           <i id="viewSwitchIcon" class="fa-solid fa-shuttle-space"></i>
-          <span id="viewSwitchLabel">OUTSIDE ROCKET [V]</span>
+          <span id="viewSwitchLabel">OUTSIDE VIEW [V]</span>
         </button>
 
         <button onclick="game.openLunanetTablet()" class="px-3 py-2 rounded-xl bg-slate-900/95 hover:bg-slate-800 border-2 border-cyan-400/60 text-cyan-300 font-orbitron font-bold text-xs flex items-center gap-1.5 shadow-lg" title="Open NASA LUNANET Tablet">
@@ -226,8 +232,9 @@
           <div class="text-[10px] text-amber-300 font-bold">✨ <span id="hudStarCount">150</span></div>
         </div>
 
-        <button onclick="game.openMissionSelectorModal()" class="w-10 h-10 rounded-xl bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-600 text-slate-200 flex items-center justify-center shadow-lg" title="Mission Hub">
-          <i class="fa-solid fa-bars"></i>
+        <button onclick="game.openMissionSelectorModal()" class="px-3 py-2 rounded-xl bg-slate-900/95 hover:bg-slate-800 border-2 border-slate-600 text-slate-200 font-orbitron font-bold text-xs flex items-center gap-1.5 shadow-lg" title="Return to Dropship Lobby">
+          <i class="fa-solid fa-door-open text-amber-300"></i>
+          <span class="hidden sm:inline">LOBBY</span>
         </button>
       </div>
     </div>
@@ -301,108 +308,149 @@
   </div>
 
   <!-- =====================================================================
-       4. START / MISSION SELECTOR & ORIGINAL EVA EXPLORER CUSTOMIZER
+       4. DROPSHIP WAITING ROOM LOBBY INTERFACE (Matches image_2f467e.jpg!)
+          Interactive Walkable Boarding Room + Laptop Customizer + Mission Airlock
   ====================================================================== -->
-  <div id="startMenuModal" class="fixed inset-0 z-40 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="max-w-5xl w-full bg-slate-900/95 border-2 border-cyan-400/60 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-5 my-auto">
-      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-slate-950 text-2xl font-black shadow-lg">
-            🚀
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="font-orbitron font-black text-xl sm:text-2xl text-white tracking-wider">ASTRO-QUEST: ODYSSEY</h1>
-              <span class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 font-mono-tech text-[10px]">ORIGINAL NASA/ISRO EDITION</span>
-            </div>
-            <p class="text-xs text-slate-400">Detailed Multi-Room Spacecraft • 4 Unique Engineering Puzzles • Real-Time Meteor Alerts & Rocket Dodging</p>
-          </div>
+  <div id="startMenuModal" class="fixed inset-0 z-30 pointer-events-none flex flex-col justify-between p-3 sm:p-5">
+    <!-- Top Bar: Game Brand + Ping + Earned Patches + Quick Customize Drawer Toggle -->
+    <div class="flex flex-wrap items-center justify-between gap-2 pointer-events-auto">
+      <div class="bg-slate-950/90 border-2 border-slate-600 rounded-2xl px-4 py-2 flex items-center gap-3 shadow-2xl">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center text-slate-950 font-black text-lg">
+          🚀
         </div>
-
-        <div class="flex items-center gap-2 bg-slate-950 px-3 py-1.5 rounded-2xl border border-slate-800">
-          <span class="text-[10px] font-mono-tech text-slate-400 uppercase">EARNED PATCHES:</span>
-          <span id="menuPatch1" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs font-bold text-slate-400">🌕 I: Moon</span>
-          <span id="menuPatch2" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs font-bold text-slate-400">🪐 II: TOI-700d</span>
-          <span id="menuPatch3" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs font-bold text-slate-400">👽 III: 1420MHz</span>
+        <div>
+          <div class="font-orbitron font-black text-sm sm:text-base text-white tracking-wider">ASTRO-QUEST: DROPSHIP BOARDING LOBBY</div>
+          <div class="text-[11px] font-mono-tech text-cyan-300">Walk with <b>WASD / Arrows</b> or click the <b>Green Laptop Crate</b> to customize & launch!</div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        <!-- Left 4 Cols: Original EVA Astronaut Suit Customizer -->
-        <div class="lg:col-span-4 bg-slate-950/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-4">
-          <div class="text-center space-y-2">
-            <div class="text-[11px] font-mono-tech uppercase text-amber-300 font-bold">1. CUSTOMIZE EVA EXPLORER SUIT</div>
-            <div class="w-28 h-28 mx-auto rounded-2xl bg-slate-900 border-2 border-cyan-400/70 flex items-center justify-center shadow-inner">
-              <canvas id="avatarPreviewCanvas" width="100" height="100"></canvas>
+      <div class="flex items-center gap-2">
+        <div class="bg-slate-950/90 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-2 text-xs font-mono-tech">
+          <span class="text-slate-400">PATCHES:</span>
+          <span id="menuPatch1" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400">🌕 I</span>
+          <span id="menuPatch2" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400">🪐 II</span>
+          <span id="menuPatch3" class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-400">👽 III</span>
+        </div>
+        <div class="bg-slate-950/90 border border-slate-700 rounded-xl px-3 py-1.5 font-mono-tech text-xs text-emerald-400">
+          Ping: <b>18 ms</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Floating Drawer (Opens when clicking the Green Laptop Crate or "CUSTOMIZE / MISSIONS" button) -->
+    <div id="lobbyCustomizeDrawer" class="pointer-events-auto max-w-4xl w-full mx-auto bg-slate-950/95 border-2 border-cyan-400/80 rounded-3xl p-4 sm:p-6 shadow-[0_25px_70px_rgba(0,0,0,0.95)] space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-mono-tech text-[10px] font-bold">
+            💻 DROPSHIP LAPTOP TERMINAL
+          </span>
+          <h2 class="font-orbitron font-black text-base sm:text-lg text-white">CUSTOMIZE ASTRONAUT & SELECT MISSION</h2>
+        </div>
+        <button onclick="game.toggleLobbyDrawer(false)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-mono-tech text-cyan-200">
+          🚶 Walk Around Dropship Lobby
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+        <!-- Left 4 Cols: Suit Color, Callsign & Hat/Visor Customizer -->
+        <div class="lg:col-span-4 bg-slate-900/90 border border-slate-700 rounded-2xl p-3.5 flex flex-col justify-between space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="w-20 h-20 rounded-2xl bg-slate-950 border-2 border-cyan-400/70 flex items-center justify-center shrink-0">
+              <canvas id="avatarPreviewCanvas" width="90" height="90"></canvas>
             </div>
-            <input id="callsignInput" type="text" maxlength="12" value="CDR. ARYA" oninput="game.setCallsign(this.value)" class="w-full text-center font-orbitron font-bold text-sm bg-slate-900 border border-slate-700 rounded-xl py-2 text-white focus:border-cyan-400 outline-none" />
+            <div class="flex-1 space-y-1.5">
+              <label class="text-[10px] font-mono-tech uppercase text-amber-300 font-bold">ASTRONAUT CALLSIGN</label>
+              <input id="callsignInput" type="text" maxlength="12" value="CDR. ARYA" oninput="game.setCallsign(this.value)" class="w-full text-center font-orbitron font-bold text-xs bg-slate-950 border border-slate-600 rounded-xl py-2 text-white focus:border-cyan-400 outline-none" />
+              <div class="text-[10px] font-mono-tech text-slate-400">Appears above your helmet</div>
+            </div>
           </div>
 
           <div>
-            <div class="text-[10px] font-mono-tech uppercase text-slate-400 mb-2 text-center">SELECT SPACESUIT ARMOR TRIM</div>
-            <div id="colorPickerGrid" class="grid grid-cols-4 gap-2"></div>
+            <div class="text-[10px] font-mono-tech uppercase text-slate-400 mb-1.5">SPACESUIT ARMOR COLOR</div>
+            <div id="colorPickerGrid" class="grid grid-cols-4 gap-1.5"></div>
           </div>
 
-          <div class="text-[11px] text-slate-300 bg-slate-900/90 p-3 rounded-xl border border-slate-800 leading-relaxed space-y-1">
-            <div><i class="fa-solid fa-meteor text-rose-400 mr-1"></i> <b>Meteorite Alert Rule:</b> When the red alarm sounds inside the ship, press <b>[V]</b> to switch Outside and dodge the fireball! <b>3 Meteor Hits = Mission Failed!</b></div>
+          <div class="text-[10px] font-mono-tech text-cyan-200 bg-slate-950 p-2.5 rounded-xl border border-slate-800 leading-relaxed">
+            ☄️ <b>Strictly 3 Meteorites:</b> Exactly <b>3 meteorites</b> appear during the dedicated Meteorite Alert stage—never interrupting your interior room puzzles!
           </div>
         </div>
 
-        <!-- Right 8 Cols: 3 Distinct Space Missions -->
-        <div class="lg:col-span-8 flex flex-col justify-between space-y-3">
-          <div class="text-xs font-mono-tech uppercase text-cyan-300 font-bold">2. CHOOSE YOUR SPACE MISSION (EACH WITH UNIQUE PUZZLES & FINALE):</div>
-
+        <!-- Right 8 Cols: 3 Missions -->
+        <div class="lg:col-span-8 flex flex-col justify-between space-y-2.5">
           <!-- MISSION 1 -->
-          <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/40 border-2 border-amber-400/70 flex flex-col sm:flex-row items-center justify-between gap-4 hover:border-amber-300 transition">
-            <div class="space-y-1">
+          <div class="p-3.5 rounded-2xl bg-slate-900/95 border-2 border-amber-400/70 flex flex-col sm:flex-row items-center justify-between gap-3 hover:border-amber-300 transition">
+            <div class="space-y-0.5">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-tech text-[10px] font-bold">MISSION 01 • ARTEMIS & CHANDRAYAAN-3</span>
-                <span class="text-xs font-mono-tech text-emerald-300">🟢 5 Unique Obstacles</span>
+                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono-tech text-[10px] font-bold">MISSION 01 • LUNAR SOUTH POLE</span>
+                <span class="text-[11px] font-mono-tech text-emerald-300">☄️ Exactly 3 Meteorites • 5 Unique Tasks</span>
               </div>
-              <h3 class="font-orbitron font-black text-base sm:text-lg text-white">🌕 Journey to the Lunar South Pole</h3>
-              <p class="text-xs text-slate-300">
-                Solve the <b>KITO Wattage Math Breaker</b>, seal the <b>MedBay Gas Leak & LiOH Scrubber</b>, pilot the <b>Rocketship</b> past meteorites, stabilize the <b>Gyroscope Thruster Ring</b>, and land <b>Vikram & Pragyan</b> to plant the <b>🇮🇳 Indian Flag</b>!
+              <h3 class="font-orbitron font-black text-sm sm:text-base text-white">🌕 Journey to the Moon (Vikram & Artemis)</h3>
+              <p class="text-[11px] text-slate-300">
+                1. <b>KITO Breaker Box</b> → 2. <b>O₂ Pipe Leak & LiOH Scrubber</b> → 3. <b>Dodge Exactly 3 Meteorites</b> → 4. <b>Gyroscope RCS Ring</b> → 5. <b>Shackleton Lidar & 🇮🇳 Flag</b>!
               </p>
             </div>
-            <button onclick="game.startMission(1)" class="px-5 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-orbitron font-black text-xs shrink-0 shadow-lg">
-              LAUNCH MOON ▶
+            <button onclick="game.startMission(1)" class="px-4 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-orbitron font-black text-xs shrink-0 shadow-lg">
+              START MISSION 1 ▶
             </button>
           </div>
 
           <!-- MISSION 2 -->
-          <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 border border-cyan-400/60 flex flex-col sm:flex-row items-center justify-between gap-4 hover:border-cyan-300 transition">
-            <div class="space-y-1">
+          <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-400/60 flex flex-col sm:flex-row items-center justify-between gap-3 hover:border-cyan-300 transition">
+            <div class="space-y-0.5">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-tech text-[10px] font-bold">MISSION 02 • TESS & JWST OBSERVATORY</span>
-                <span class="text-xs font-mono-tech text-purple-300">🟣 4 Unique Obstacles</span>
+                <span class="px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono-tech text-[10px] font-bold">MISSION 02 • TESS & JWST EXOPLANET</span>
+                <span class="text-[11px] font-mono-tech text-cyan-300">☄️ Exactly 3 Meteorites • 4 Unique Tasks</span>
               </div>
-              <h3 class="font-orbitron font-black text-base sm:text-lg text-white">🪐 Discover Habitable Exoplanet TOI-700 d</h3>
-              <p class="text-xs text-slate-300">
-                Wire the <b>6.7 K Helium Cryocooler Conduits</b>, dodge L2 Meteorites in the Rocketship, lock the <b>Fine-Guidance Gyroscope</b>, tag TESS Light-Curve Dips, and enter the <b>Full-Screen TOI-700 d Planetary Orbit</b>!
+              <h3 class="font-orbitron font-black text-sm sm:text-base text-white">🪐 Discover Habitable Planet TOI-700 d</h3>
+              <p class="text-[11px] text-slate-300">
+                1. <b>5-Layer Sunshield & 6.7K Cryocooler</b> → 2. <b>Dodge Exactly 3 Meteorites</b> → 3. <b>Hexagonal Gold Mirror Alignment</b> → 4. <b>TESS Light-Curve Scanner</b>!
               </p>
             </div>
-            <button onclick="game.startMission(2)" class="px-5 py-3.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-orbitron font-black text-xs shrink-0 shadow-lg">
-              LAUNCH TOI-700d ▶
+            <button onclick="game.startMission(2)" class="px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-orbitron font-black text-xs shrink-0 shadow-lg">
+              START MISSION 2 ▶
             </button>
           </div>
 
           <!-- MISSION 3 -->
-          <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-purple-950/40 border border-purple-400/60 flex flex-col sm:flex-row items-center justify-between gap-4 hover:border-purple-300 transition">
-            <div class="space-y-1">
+          <div class="p-3.5 rounded-2xl bg-slate-900/95 border border-purple-400/60 flex flex-col sm:flex-row items-center justify-between gap-3 hover:border-purple-300 transition">
+            <div class="space-y-0.5">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono-tech text-[10px] font-bold">MISSION 03 • 1420 MHz DEEP SPACE SETI</span>
-                <span class="text-xs font-mono-tech text-amber-300">🟣 4 Unique Obstacles</span>
+                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono-tech text-[10px] font-bold">MISSION 03 • 1420 MHz FIRST CONTACT</span>
+                <span class="text-[11px] font-mono-tech text-purple-300">☄️ Exactly 3 Meteorites • 4 Unique Tasks</span>
               </div>
-              <h3 class="font-orbitron font-black text-base sm:text-lg text-white">👽 First Contact: 1420 MHz & Astrobiology</h3>
-              <p class="text-xs text-slate-300">
-                Route <b>Deep-Space Conduit Links</b>, repair the <b>O₂/LiOH Manifold</b>, survive an Outer-Belt Meteorite Storm, tune the <b>1420.4 MHz Hydrogen Line</b>, and converse with an <b>Alien Scientist Vessel</b> in deep space!
+              <h3 class="font-orbitron font-black text-sm sm:text-base text-white">👽 Alien Contact: 1420 MHz & Astrobiology</h3>
+              <p class="text-[11px] text-slate-300">
+                1. <b>Voyager Golden Record Decoder</b> → 2. <b>Europa & Bennu Bio-Chromatograph</b> → 3. <b>Dodge Exactly 3 Meteorites</b> → 4. <b>1420 MHz Alien Contact</b>!
               </p>
             </div>
-            <button onclick="game.startMission(3)" class="px-5 py-3.5 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-orbitron font-black text-xs shrink-0 shadow-lg">
-              LAUNCH CONTACT ▶
+            <button onclick="game.startMission(3)" class="px-4 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-orbitron font-black text-xs shrink-0 shadow-lg">
+              START MISSION 3 ▶
             </button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Bottom Dropship Lobby Bar: [PRIVATE] + Code: NAS2026 + Crew 5/5 + Laptop Toggle Button (Matches image_2f467e.jpg) -->
+    <div class="flex flex-wrap items-end justify-between gap-3 pointer-events-auto">
+      <div class="flex items-center gap-3 bg-slate-950/90 border-2 border-slate-500 rounded-2xl px-4 py-2 shadow-2xl">
+        <button onclick="game.toggleLobbyDrawer(true)" class="px-3 py-1 rounded-lg bg-rose-950 border-2 border-slate-300 font-orbitron font-black text-xs sm:text-sm text-rose-400 tracking-wider shadow">
+          PRIVATE
+        </button>
+        <div class="text-center font-mono-tech leading-tight">
+          <div class="text-[10px] text-slate-300 uppercase">Code</div>
+          <div class="text-sm sm:text-base font-extrabold text-white tracking-widest">NAS2026</div>
+        </div>
+        <div class="flex items-center gap-1.5 pl-2 border-l border-slate-700 font-mono-tech text-sm font-extrabold text-lime-400">
+          <span>👩‍🚀</span>
+          <span>5/5</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="game.toggleLobbyDrawer()" class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 font-orbitron font-black text-xs shadow-xl border-2 border-white">
+          💻 OPEN CUSTOMIZE & MISSION LAPTOP [E]
+        </button>
       </div>
     </div>
   </div>
@@ -616,107 +664,119 @@
 
     /***********************************************************************
      * DETAILED SPACECRAFT ROOMS (1200 x 720 Logical Canvas)
+     * Connected by full walkable corridors & doorway airlocks, separated by thick walls
      ***********************************************************************/
     const SKELD_ROOMS = [
       {
         id: 'reactor',
         name: 'REACTOR & GYRO BAY',
-        x: 75, y: 245, w: 140, h: 230,
-        floorColor: '#311042', pattern: 'reactor',
-        consoleX: 135, consoleY: 360,
-        taskLabel: 'GYRO THRUSTER RING'
+        x: 65, y: 215, w: 155, h: 275,
+        floorColor: '#1f1638', pattern: 'reactor',
+        consoleX: 135, consoleY: 355,
+        taskLabel: 'GYRO THRUSTER RING',
+        defaultModal: 'gyro_rcs'
       },
       {
         id: 'upper_engine',
         name: 'UPPER CRYO ENGINE',
-        x: 225, y: 95, w: 145, h: 140,
-        floorColor: '#451a03', pattern: 'engine',
-        consoleX: 295, consoleY: 165,
-        taskLabel: 'CRYO CONDUIT MATRIX'
+        x: 230, y: 75, w: 165, h: 155,
+        floorColor: '#2c1810', pattern: 'engine',
+        consoleX: 310, consoleY: 155,
+        taskLabel: 'SUNSHIELD & 6.7K CRYO',
+        defaultModal: 'cryo_conduit'
       },
       {
         id: 'lower_engine',
-        name: 'LOWER HYPERGOLIC BAY',
-        x: 225, y: 485, w: 145, h: 140,
-        floorColor: '#451a03', pattern: 'engine',
-        consoleX: 295, consoleY: 555,
-        taskLabel: 'FUEL PRESSURE TRIM'
+        name: 'LOWER OPTICS & ENGINE',
+        x: 230, y: 475, w: 165, h: 155,
+        floorColor: '#2c1810', pattern: 'engine',
+        consoleX: 310, consoleY: 555,
+        taskLabel: 'HEX MIRROR ALIGNMENT',
+        defaultModal: 'hex_mirror'
       },
       {
         id: 'medbay',
         name: 'MEDBAY & ECLSS LAB',
-        x: 390, y: 220, w: 150, h: 175,
-        floorColor: '#0f293a', pattern: 'medbay',
-        consoleX: 465, consoleY: 305,
-        taskLabel: 'GAS LEAK & LiOH SWAP'
+        x: 405, y: 205, w: 160, h: 185,
+        floorColor: '#0c273c', pattern: 'medbay',
+        consoleX: 485, consoleY: 300,
+        taskLabel: 'GAS LEAK & LiOH SWAP',
+        defaultModal: 'eclss_leak'
       },
       {
         id: 'electrical',
         name: 'ELECTRICAL (KITO)',
-        x: 410, y: 430, w: 160, h: 175,
-        floorColor: '#1e1b4b', pattern: 'electrical',
-        consoleX: 490, consoleY: 515,
-        taskLabel: 'KITO WATTAGE BREAKERS'
+        x: 405, y: 425, w: 165, h: 190,
+        floorColor: '#1b1947', pattern: 'electrical',
+        consoleX: 485, consoleY: 520,
+        taskLabel: 'KITO WATTAGE BREAKERS',
+        defaultModal: 'kito_power'
       },
       {
         id: 'cafeteria',
-        name: 'COMMAND DECK HUB',
-        x: 560, y: 85, w: 280, h: 245,
-        floorColor: '#cbd5e1', pattern: 'cafeteria',
-        consoleX: 700, consoleY: 205,
-        taskLabel: 'LUNANET SCIENCE TABLET'
+        name: 'COMMAND DECK OBSERVATORY',
+        x: 580, y: 70, w: 285, h: 255,
+        floorColor: '#162a45', pattern: 'cafeteria',
+        consoleX: 722, consoleY: 205,
+        taskLabel: 'TESS LIGHT CURVE',
+        defaultModal: 'lunanet_exoplanet'
       },
       {
         id: 'storage',
-        name: 'PAYLOAD CARGO BAY',
-        x: 590, y: 395, w: 195, h: 220,
-        floorColor: '#78350f', pattern: 'storage',
+        name: 'VOYAGER ARCHIVE BAY',
+        x: 585, y: 385, w: 205, h: 230,
+        floorColor: '#2b1d12', pattern: 'storage',
         consoleX: 685, consoleY: 505,
-        taskLabel: 'PAYLOAD MASS LATCH'
+        taskLabel: 'GOLDEN RECORD DECODER',
+        defaultModal: 'golden_record'
       },
       {
         id: 'admin',
-        name: 'TELEMETRY SERVER BAY',
-        x: 805, y: 365, w: 145, h: 145,
-        floorColor: '#4c0519', pattern: 'admin',
-        consoleX: 875, consoleY: 435,
-        taskLabel: 'DEEP-SPACE RELAY'
+        name: 'ASTROBIOLOGY LAB',
+        x: 800, y: 360, w: 155, h: 165,
+        floorColor: '#1d2236', pattern: 'admin',
+        consoleX: 878, consoleY: 445,
+        taskLabel: 'EUROPA & BENNU ANALYZER',
+        defaultModal: 'astro_biolab'
       },
       {
         id: 'navigation',
         name: 'NAVIGATION BRIDGE',
-        x: 965, y: 255, w: 155, h: 210,
-        floorColor: '#091526', pattern: 'navigation',
-        consoleX: 1055, consoleY: 360,
-        taskLabel: 'FLIGHT & LANDING RADAR'
+        x: 965, y: 230, w: 175, h: 245,
+        floorColor: '#0b1e36', pattern: 'navigation',
+        consoleX: 1055, consoleY: 355,
+        taskLabel: 'FLIGHT & LANDING RADAR',
+        defaultModal: 'lunanet_landing'
       }
     ];
 
     const SKELD_CORRIDORS = [
-      { x: 200, y: 320, w: 210, h: 80 },
-      { x: 265, y: 220, w: 65,  h: 280 },
-      { x: 355, y: 135, w: 220, h: 65 },
-      { x: 355, y: 520, w: 250, h: 65 },
-      { x: 525, y: 260, w: 190, h: 75 },
-      { x: 655, y: 315, w: 75,  h: 100 },
-      { x: 770, y: 410, w: 60,  h: 65 },
-      { x: 825, y: 185, w: 115, h: 200 },
-      { x: 910, y: 325, w: 80,  h: 70 }
+      { x: 195, y: 315, w: 235, h: 80 },
+      { x: 275, y: 210, w: 70,  h: 285 },
+      { x: 375, y: 125, w: 225, h: 70 },
+      { x: 375, y: 515, w: 230, h: 70 },
+      { x: 545, y: 255, w: 185, h: 80 },
+      { x: 655, y: 305, w: 80,  h: 105 },
+      { x: 770, y: 405, w: 60,  h: 75 },
+      { x: 830, y: 185, w: 105, h: 195 },
+      { x: 915, y: 320, w: 75,  h: 75 }
     ];
 
     /***********************************************************************
-     * 3 MISSIONS WITH DISTINCT PUZZLE TYPES PER ROOM
+     * 3 MISSIONS — EVERY OBSTACLE HAS A 100% UNIQUE INTERFACE & PUZZLE
+     * AND STRICTLY EXACTLY 3 METEORITES PER MISSION!
      ***********************************************************************/
     const MISSIONS = {
       1: {
         id: 1,
         name: 'Mission 1: Lunar South Pole (Vikram & Artemis)',
+        meteorQuota: 3, // Strictly 3 meteorites!
         steps: [
           {
             type: 'kito_power',
             room: 'electrical',
             banner: 'OBSTACLE 1/5 (ECLIPSE): Walk to ELECTRICAL & press [E] to calculate and shed load ≤ 500W!',
-            aria: 'Earth Umbra Eclipse! Solar output is 0W. Critical systems draw 450W, so you must turn OFF non-essential breakers to stay ≤ 500W.'
+            aria: 'Earth Umbra Eclipse! Solar output is 0W. Critical systems draw 450W, so turn OFF non-essential breakers to stay ≤ 500W.'
           },
           {
             type: 'eclss_leak',
@@ -727,8 +787,8 @@
           {
             type: 'asteroid_dodge',
             room: 'navigation',
-            banner: 'OBSTACLE 3/5 (METEORITE FIELD): Switch to OUTSIDE ROCKET VIEW [V]! Dodge blazing meteorites & reach Score 1120!',
-            aria: 'Dense meteoroid stream! Pilot the rocketship in Outside View [V]. Remember: 3 hits from blazing red meteorites will breach the hull!'
+            banner: 'OBSTACLE 3/5 (3 METEORITES INCOMING!): Press [V] to switch to OUTSIDE VIEW and dodge the 3 incoming meteorites!',
+            aria: 'ALERT! 3 tracked meteorites are on a collision course! Switch to Outside View [V] right now and steer your spacecraft past all 3 meteorites!'
           },
           {
             type: 'gyro_rcs',
@@ -747,29 +807,30 @@
       2: {
         id: 2,
         name: 'Mission 2: Exoplanet Discovery (TOI-700 d)',
+        meteorQuota: 3, // Strictly 3 meteorites!
         steps: [
           {
             type: 'cryo_conduit',
             room: 'upper_engine',
-            banner: 'OBSTACLE 1/4 (6.7K CRYOCOOLER): Walk to UPPER CRYO ENGINE & press [E] to wire the Helium Cryo Conduits!',
-            aria: 'JWST/MIRI infrared sensors need active helium cooling to 6.7 K! Connect matching conduits and balance the 3 pressure valves.'
+            banner: 'OBSTACLE 1/4 (6.7K CRYOCOOLER): Walk to UPPER CRYO ENGINE & press [E] to deploy the 5-Layer Sunshield & Helium Cryocooler!',
+            aria: 'JWST/MIRI infrared sensors need passive sunshield cooling to 40 K plus active Helium cooling to 6.7 K! Open the Upper Engine Cryo Console.'
           },
           {
             type: 'asteroid_dodge',
             room: 'navigation',
-            banner: 'OBSTACLE 2/4 (L2 METEORITE STORM): Switch to OUTSIDE ROCKET VIEW [V]! Dodge meteorites & hit Score 1120!',
-            aria: 'Micrometeoroids swirling around Sun-Earth L2! Pilot the rocketship in Outside View [V] and collect data orbs to reach 1120.'
+            banner: 'OBSTACLE 2/4 (3 L2 METEORITES INCOMING!): Press [V] to switch to OUTSIDE VIEW and dodge the 3 meteorites!',
+            aria: 'ALERT! 3 micrometeoroids detected at Sun-Earth L2! Switch to Outside View [V] and dodge all 3 meteorites to protect the mirror.'
           },
           {
-            type: 'gyro_rcs',
-            room: 'reactor',
-            banner: 'OBSTACLE 3/4 (FINE GUIDANCE LOCK): Walk to REACTOR & GYRO BAY & press [E] to null telescope jitter!',
-            aria: 'Telescope pointing drift exceeds 0.005 arcseconds! Center the gyroscope reticle using opposing RCS thrusters.'
+            type: 'hex_mirror',
+            room: 'lower_engine',
+            banner: 'OBSTACLE 3/4 (GOLD HEX MIRROR PHASING): Walk to LOWER OPTICS BAY & press [E] to align the 18 Hexagonal Mirror Segments!',
+            aria: 'Micro-vibrations de-phased 3 of our gold-coated beryllium hexagon mirrors! Walk to Lower Optics Bay and focus the starlight.'
           },
           {
             type: 'lunanet_exoplanet',
             room: 'cafeteria',
-            banner: 'OBSTACLE 4/4 (TESS LIGHT CURVE): Walk to COMMAND DECK HUB & press [E] to tag TOI-700 d’s 3 transit dips!',
+            banner: 'OBSTACLE 4/4 (TESS LIGHT CURVE): Walk to COMMAND OBSERVATORY & press [E] to tag TOI-700 d’s 3 transit dips!',
             aria: 'Open the LUNANET Photometry Tablet and tag all 3 periodic brightness dips (-0.13% every 37.4 days) to confirm habitable-zone world TOI-700 d!'
           }
         ]
@@ -777,24 +838,25 @@
       3: {
         id: 3,
         name: 'Mission 3: First Contact (1420 MHz & Astrobiology)',
+        meteorQuota: 3, // Strictly 3 meteorites!
         steps: [
           {
-            type: 'cryo_conduit',
-            room: 'upper_engine',
-            banner: 'OBSTACLE 1/4 (DISH WAVEGUIDE): Walk to UPPER CRYO ENGINE & press [E] to link the 1420 MHz Waveguide Conduits!',
-            aria: 'Our deep-space dish waveguide is uncoupled! Wire the 3 color-coded RF conduits and equalize amplifier pressure.'
+            type: 'golden_record',
+            room: 'storage',
+            banner: 'OBSTACLE 1/4 (VOYAGER GOLDEN RECORD): Walk to VOYAGER ARCHIVE BAY (Storage) & press [E] to decode the Pulsar & Hydrogen Key!',
+            aria: 'Before transmitting into deep space, walk to the Voyager Archive Bay and calibrate the 1977 Voyager Golden Record Binary Hydrogen Key!'
           },
           {
-            type: 'eclss_leak',
-            room: 'medbay',
-            banner: 'OBSTACLE 2/4 (DEEP-SPACE LIFE SUPPORT): Walk to MEDBAY & ECLSS & press [E] to repair the O₂ leak & LiOH scrubber!',
-            aria: 'Long-range cruise alert! Patch the cabin O₂ manifold and swap the saturated LiOH CO₂ scrubber canister.'
+            type: 'astro_biolab',
+            room: 'admin',
+            banner: 'OBSTACLE 2/4 (EUROPA & BENNU BIO-LAB): Walk to ASTROBIOLOGY LAB (Admin) & press [E] to verify NASA habitability biomarkers!',
+            aria: 'Walk to the Astrobiology Lab to analyze Europa Clipper’s subsurface ocean magnetometer data and OSIRIS-REx’s Bennu amino acids!'
           },
           {
             type: 'asteroid_dodge',
             room: 'navigation',
-            banner: 'OBSTACLE 3/4 (OUTER BELT FIREBALLS): Switch to OUTSIDE VIEW [V]! Dodge blazing meteorites to Score 1120!',
-            aria: 'High-energy bolides ahead! Pilot the rocketship in Outside View [V] to reach 1120 without taking 3 meteorite strikes.'
+            banner: 'OBSTACLE 3/4 (3 DEEP-SPACE METEORITES INCOMING!): Press [V] to switch to OUTSIDE VIEW and dodge the 3 meteorites!',
+            aria: 'ALERT! 3 high-energy bolides incoming! Switch to Outside View [V] and steer your spacecraft safely past all 3 meteorites.'
           },
           {
             type: 'lunanet_seti',
@@ -812,45 +874,58 @@
     const game = {
       missionId: 1,
       stepIndex: 0,
-      viewMode: 'inside', // 'inside' | 'outside' | 'surface'
+      viewMode: 'lobby', // 'lobby' | 'inside' | 'outside' | 'surface'
       callsign: 'CDR. ARYA',
       suitColor: CREW_COLORS[0],
       stars: 150,
       patches: { 1: false, 2: false, 3: false },
       autoFixLeft: 1,
 
-      // Telemetry & 3-Strike Meteorite Counter
+      // Dropship Waiting Room Lobby State (Matches image_2f467e.jpg)
+      lobbyPlayer: { x: 600, y: 455, facing: 1, walkFrame: 0 },
+      lobbyBots: [
+        { name: 'Sammie', x: 495, y: 315, vx: 0.4, color: CREW_COLORS[5], hat: 'flamingo' },
+        { name: 'bob',    x: 645, y: 365, vx: -0.35, color: CREW_COLORS[1], hat: 'fedora' },
+        { name: 'ingy',   x: 470, y: 425, vx: 0.3, color: CREW_COLORS[3], hat: 'none' },
+        { name: 'egg',    x: 495, y: 490, vx: -0.25, color: CREW_COLORS[7], hat: 'egg' }
+      ],
+
+      // Telemetry & Strictly 3-to-4 Meteorite Quota System
       atmo: 94,
       power: 86,
       hull: 100,
       meteorHits: 0,
       maxMeteorHits: 3,
+      meteorQuota: 3,
+      meteorsSpawnedCount: 0,
+      meteorsResolvedCount: 0,
+      meteorSpawnTimer: 0,
       missionFailed: false,
 
       // Real-Time Incoming Meteorite Alert while Inside Ship
       meteorAlert: {
         active: false,
-        countdown: 12.0,
-        cooldown: 16.0
+        countdown: 14.0,
+        cooldown: 18.0
       },
 
       // Articulated Astronaut Position inside Ship
       player: {
-        x: 700,
+        x: 720,
         y: 225,
-        speed: 4.7,
+        speed: 4.8,
         facing: 1,
         walkFrame: 0
       },
       keys: { up: false, down: false, left: false, right: false },
 
-      // Outside Rocketship Flight State
+      // Outside Realistic Spacecraft Flight State
       arcade: {
         score: 760,
         shipX: 600,
-        shipY: 590,
-        rocks: [],      // Minor grey space rocks (push/spark)
-        meteorites: [], // Blazing crimson/orange fireballs (3 hits = Mission Failed!)
+        shipY: 575,
+        rocks: [],      // Ambient small space pebbles
+        meteorites: [], // Strictly 3 to 4 tracked meteorites per mission
         orbs: [],
         stars: []
       },
@@ -869,25 +944,44 @@
       eclssState: {
         quizPassed: false,
         leaksPatched: [false, false],
-        valveIsolated: false,
+        valveTurned: false,
         oldEjected: false,
-        freshInserted: false
+        newInserted: false
       },
 
-      // Puzzle B2: Reactor Gyroscope & Thruster Vectoring State
+      // Puzzle B2: Reactor Gyroscope Vector Ring State
       gyroState: {
         quizPassed: false,
-        driftX: 65,
-        driftY: -55,
-        wheelRpm: 5900
+        targetX: 2,
+        targetY: -2,
+        rpm: 5900
       },
 
-      // Puzzle B3: Cryo Conduit Wiring & Pressure Equalizer State
+      // Puzzle B3: Cryo Sunshield & 6.7K Helium Cooler State (Mission 2 Unique Task)
       conduitState: {
         quizPassed: false,
-        selectedColor: null,
-        wired: { red: false, cyan: false, gold: false },
-        pressures: [40, 85, 30] // Target: all between 55 and 70
+        sunshieldLayers: 0, // 0 to 5 layers
+        heliumCryoOn: false,
+        pressures: [40, 85, 30]
+      },
+
+      // Puzzle B4: JWST 18-Segment Gold Hexagonal Mirror Alignment (Mission 2 Unique Task)
+      mirrorState: {
+        quizPassed: false,
+        segments: [true, false, true, true, false, true, false] // 7 interactive hex clusters
+      },
+
+      // Puzzle B5: Voyager Golden Record Decoder (Mission 3 Unique Task)
+      voyagerState: {
+        quizPassed: false,
+        quadrantsUnlocked: [false, false, false, false]
+      },
+
+      // Puzzle B6: Europa & Bennu Astrobiology Lab (Mission 3 Unique Task)
+      bioLabState: {
+        quizPassed: false,
+        europaSalinityScanned: false,
+        bennuAminoIdentified: false
       },
 
       // LUNANET States
@@ -954,14 +1048,24 @@
           const cx = ((e.clientX - rect.left) / rect.width) * 1200;
           const cy = ((e.clientY - rect.top) / rect.height) * 720;
 
+          if (this.viewMode === 'lobby') {
+            // Clicking Green Laptop Crate or Top Blast Door opens the Mission/Customize Drawer
+            if (Math.hypot(cx - 415, cy - 335) < 75 || Math.hypot(cx - 600, cy - 205) < 95) {
+              this.toggleLobbyDrawer(true);
+              return;
+            }
+            this.lobbyPlayer.x = Math.max(320, Math.min(880, cx));
+            this.lobbyPlayer.y = Math.max(250, Math.min(585, cy));
+            return;
+          }
+
           if (this.viewMode === 'inside') {
-            const step = this.currentStep();
-            if (step) {
-              const rm = SKELD_ROOMS.find(r => r.id === step.room);
-              if (rm && Math.hypot(cx - rm.consoleX, cy - rm.consoleY) < 65) {
+            // Check if player clicked any room console directly
+            for (const rm of SKELD_ROOMS) {
+              if (Math.hypot(cx - rm.consoleX, cy - rm.consoleY) < 60) {
                 this.player.x = rm.consoleX;
-                this.player.y = rm.consoleY + 28;
-                this.interactCurrentStation();
+                this.player.y = rm.consoleY + 26;
+                this.interactRoomStation(rm);
                 return;
               }
             }
@@ -970,12 +1074,17 @@
               const dy = cy - this.player.y;
               const dist = Math.hypot(dx, dy);
               if (dist > 8) {
-                this.player.x += (dx / dist) * Math.min(dist, 60);
-                this.player.y += (dy / dist) * Math.min(dist, 60);
+                const step = Math.min(dist, 75);
+                const nx = this.player.x + (dx / dist) * step;
+                const ny = this.player.y + (dy / dist) * step;
+                if (this.isWalkable(nx, ny)) {
+                  this.player.x = nx;
+                  this.player.y = ny;
+                }
               }
             }
           } else if (this.viewMode === 'outside') {
-            this.arcade.shipX = Math.max(85, Math.min(1115, cx));
+            this.arcade.shipX = Math.max(95, Math.min(1105, cx));
           } else if (this.viewMode === 'surface') {
             this.openFinaleModal();
           }
@@ -986,10 +1095,19 @@
         this.keys[dir] = val;
       },
 
+      toggleLobbyDrawer(forceState) {
+        sfx.play('switch');
+        const drawer = document.getElementById('lobbyCustomizeDrawer');
+        if (!drawer) return;
+        const show = typeof forceState === 'boolean' ? forceState : drawer.classList.contains('hidden');
+        if (show) drawer.classList.remove('hidden');
+        else drawer.classList.add('hidden');
+      },
+
       renderColorPicker() {
         const grid = document.getElementById('colorPickerGrid');
         grid.innerHTML = CREW_COLORS.map((c, idx) => `
-          <button onclick="game.selectSuitColor(${idx})" class="h-10 rounded-xl border-2 transition flex items-center justify-center ${
+          <button onclick="game.selectSuitColor(${idx})" class="h-9 rounded-xl border-2 transition flex items-center justify-center ${
             this.suitColor.name === c.name ? 'border-white scale-105 shadow-lg' : 'border-slate-800 opacity-80'
           }" style="background:${c.hex}">
             ${this.suitColor.name === c.name ? '<i class="fa-solid fa-check text-slate-950 text-xs"></i>' : ''}
@@ -1012,29 +1130,33 @@
         const c = document.getElementById('avatarPreviewCanvas');
         if (!c) return;
         const ctx = c.getContext('2d');
-        ctx.clearRect(0, 0, 100, 100);
-        this.drawExplorerAstronaut(ctx, 50, 56, 1.35, this.suitColor, 1, 0, false);
+        ctx.clearRect(0, 0, 90, 90);
+        this.drawExplorerAstronaut(ctx, 45, 52, 1.25, this.suitColor, 1, 0, false);
       },
 
       openMissionSelectorModal() {
         sfx.play('switch');
+        this.viewMode = 'lobby';
         this.meteorAlert.active = false;
         document.getElementById('meteorWarningBanner').classList.add('hidden');
+        document.getElementById('gameHudOverlay').classList.add('hidden');
+        this.closeModals();
         this.updatePatchBadges();
         document.getElementById('startMenuModal').classList.remove('hidden');
+        this.toggleLobbyDrawer(true);
       },
 
       updatePatchBadges() {
         [1, 2, 3].forEach(id => {
           const el = document.getElementById(`menuPatch${id}`);
           if (this.patches[id]) {
-            el.className = 'px-2.5 py-0.5 rounded bg-amber-400/20 border border-amber-400 text-xs font-bold text-amber-300 shadow';
+            el.className = 'px-2 py-0.5 rounded bg-amber-400/20 border border-amber-400 text-xs font-bold text-amber-300 shadow';
           }
         });
       },
 
       /* ===================================================================
-         START MISSION & OBSTACLE FLOW
+         START MISSION & STRICTLY 3 METEORITES SETUP
       =================================================================== */
       startMission(missionId) {
         sfx.play('win');
@@ -1046,10 +1168,16 @@
         this.power = 86;
         this.hull = 100;
         this.meteorHits = 0;
+
+        // Strictly and exactly 3 meteorites per mission!
+        this.meteorQuota = 3;
+        this.meteorsSpawnedCount = 0;
+        this.meteorsResolvedCount = 0;
+        this.meteorSpawnTimer = 50;
         this.missionFailed = false;
         this.meteorAlert.active = false;
-        this.meteorAlert.cooldown = 14.0;
-        this.player.x = 700;
+        this.meteorAlert.cooldown = 9999;
+        this.player.x = 720;
         this.player.y = 225;
 
         this.surface = {
@@ -1086,19 +1214,30 @@
         document.getElementById('btnAriaAutoFix').textContent = `⚡ AUTO-SOLVE (${this.autoFixLeft})`;
 
         if (step.type === 'asteroid_dodge') {
-          this.arcade.score = 760;
+          // Stay inside first and sound the flashing Incoming Meteorite Alert so the player switches to Outside View [V]!
           this.arcade.rocks = [];
           this.arcade.meteorites = [];
           this.arcade.orbs = [];
-          this.setViewMode('outside');
+          this.meteorsSpawnedCount = 0;
+          this.meteorsResolvedCount = 0;
+          this.meteorSpawnTimer = 45;
+          this.setViewMode('inside');
+          sfx.play('siren');
+          this.meteorAlert.active = true;
+          this.meteorAlert.countdown = 16.0;
+          document.getElementById('meteorIndexNum').textContent = '1';
+          document.getElementById('meteorTotalNum').textContent = '3';
+          document.getElementById('meteorWarningBanner').classList.remove('hidden');
         } else {
+          this.meteorAlert.active = false;
+          document.getElementById('meteorWarningBanner').classList.add('hidden');
           this.setViewMode('inside');
         }
         this.updateHudUI();
       },
 
       toggleViewMode() {
-        if (this.missionFailed) return;
+        if (this.missionFailed || this.viewMode === 'lobby') return;
         sfx.play('switch');
         if (this.viewMode === 'surface') {
           this.setViewMode('inside');
@@ -1119,29 +1258,36 @@
           scoreHud.classList.remove('hidden');
           scoreHud.classList.add('flex');
 
-          // If switching outside because of an active Meteorite Alert, spawn that incoming boss meteorite!
+          // Hide the interior alert banner and begin the 3-meteorite sequence!
           if (this.meteorAlert.active) {
             this.meteorAlert.active = false;
             document.getElementById('meteorWarningBanner').classList.add('hidden');
-            this.spawnBlazingMeteorite(this.arcade.shipX);
+            if (this.meteorsSpawnedCount < this.meteorQuota && this.arcade.meteorites.length === 0) {
+              this.spawnBlazingMeteorite(this.arcade.shipX);
+            }
           }
         } else {
-          btnLabel.textContent = 'OUTSIDE ROCKET [V]';
+          btnLabel.textContent = 'OUTSIDE VIEW [V]';
           btnIcon.className = 'fa-solid fa-shuttle-space';
           scoreHud.classList.add('hidden');
           scoreHud.classList.remove('flex');
         }
+        this.updateHudUI();
       },
 
       spawnBlazingMeteorite(targetX) {
+        if (this.meteorsSpawnedCount >= this.meteorQuota) return;
+        this.meteorsSpawnedCount++;
         this.arcade.meteorites.push({
-          x: targetX || (160 + Math.random() * 880),
-          y: -60,
-          r: 30,
-          vy: 4.5,
-          vx: (Math.random() - 0.5) * 1.4,
+          id: this.meteorsSpawnedCount,
+          x: targetX || (200 + Math.random() * 800),
+          y: -65,
+          r: 28,
+          vy: 3.3, // Smooth, fair speed so player has plenty of time to dodge all 3 meteorites
+          vx: (Math.random() - 0.5) * 0.9,
           rot: 0
         });
+        this.updateHudUI();
       },
 
       registerMeteorStrike(reasonText) {
@@ -1218,10 +1364,29 @@
       },
 
       /* ===================================================================
-         INTERACT WITH ROOM CONSOLES ([E] OR CONSOLE BUTTON)
+         INTERACT WITH ANY ROOM CONSOLE ([E] OR CONSOLE BUTTON)
       =================================================================== */
       interactCurrentStation() {
         if (this.missionFailed) return;
+        if (this.viewMode === 'lobby') {
+          this.toggleLobbyDrawer();
+          return;
+        }
+        if (this.viewMode === 'surface') {
+          this.openFinaleModal();
+          return;
+        }
+
+        // First check if player is standing near ANY room console so every room button works!
+        const nearbyRoom = SKELD_ROOMS.find(r =>
+          Math.hypot(this.player.x - r.consoleX, this.player.y - r.consoleY) < 95
+        );
+        if (nearbyRoom) {
+          this.interactRoomStation(nearbyRoom);
+          return;
+        }
+
+        // Otherwise snap to the active mission step's room console
         const step = this.currentStep();
         if (!step) {
           this.openFinaleModal();
@@ -1231,23 +1396,36 @@
           this.setViewMode('outside');
           return;
         }
-
         const rm = SKELD_ROOMS.find(r => r.id === step.room);
         if (rm) {
           this.player.x = rm.consoleX;
-          this.player.y = rm.consoleY + 30;
+          this.player.y = rm.consoleY + 26;
+          this.interactRoomStation(rm);
         }
+      },
 
-        if (step.type === 'kito_power') {
+      interactRoomStation(rm) {
+        const step = this.currentStep();
+        const modalType = (step && step.room === rm.id) ? step.type : rm.defaultModal;
+
+        if (modalType === 'kito_power') {
           this.openKitoModal();
-        } else if (step.type === 'eclss_leak') {
+        } else if (modalType === 'eclss_leak') {
           this.openEclssLeakModal();
-        } else if (step.type === 'gyro_rcs') {
+        } else if (modalType === 'gyro_rcs') {
           this.openGyroRcsModal();
-        } else if (step.type === 'cryo_conduit') {
+        } else if (modalType === 'cryo_conduit') {
           this.openCryoConduitModal();
-        } else if (step.type.startsWith('lunanet_')) {
-          this.openLunanetTablet(step.type);
+        } else if (modalType === 'hex_mirror') {
+          this.openHexMirrorModal();
+        } else if (modalType === 'golden_record') {
+          this.openGoldenRecordModal();
+        } else if (modalType === 'astro_biolab') {
+          this.openAstroBioLabModal();
+        } else if (modalType && modalType.startsWith('lunanet_')) {
+          this.openLunanetTablet(modalType);
+        } else {
+          this.openLunanetTablet();
         }
       },
 
@@ -1347,16 +1525,16 @@
       },
 
       /* ===================================================================
-         PUZZLE 2: MEDBAY & ECLSS — GAS LEAK PATCH & LiOH CHEMICAL SCRUBBER
+         PUZZLE 2: MEDBAY — GAS LEAK PATCHING & LiOH CO2 CANISTER SWAP
       =================================================================== */
       openEclssLeakModal() {
         sfx.play('switch');
         this.eclssState = {
           quizPassed: false,
           leaksPatched: [false, false],
-          valveIsolated: false,
+          valveTurned: false,
           oldEjected: false,
-          freshInserted: false
+          newInserted: false
         };
         this.renderEclssLeakModal();
         document.getElementById('stationModal').classList.remove('hidden');
@@ -1365,13 +1543,13 @@
       renderEclssLeakModal() {
         const st = this.eclssState;
         const leaksDone = st.leaksPatched.every(Boolean);
-        const allDone = st.quizPassed && leaksDone && st.valveIsolated && st.oldEjected && st.freshInserted;
+        const allDone = st.quizPassed && leaksDone && st.valveTurned && st.oldEjected && st.newInserted;
 
         document.getElementById('stationModalContent').innerHTML = `
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="px-2.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono-tech text-[10px] font-bold">
-                🟢 [REAL NASA ECLSS ATMOSPHERE MANIFOLD]
+                🟢 [REAL NASA ECLSS ATMOSPHERE & LiOH CHEMISTRY]
               </span>
               <h3 class="font-orbitron font-black text-lg text-white mt-1">
                 MEDBAY & ECLSS — O₂ PIPE LEAK & LiOH CO₂ SCRUBBER
@@ -1380,92 +1558,74 @@
             <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
           </div>
 
-          <!-- Step 1: Think & Answer Chemistry Question -->
-          <div class="p-3.5 rounded-2xl ${st.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
+          <div class="p-3 rounded-2xl ${st.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
             <div class="text-xs font-bold text-amber-200">
-              🧠 STEP 1 (THINK & ANSWER): Cabin $\\text{CO}_2$ partial pressure is $4.8\\text{ mmHg}$ while $\\text{O}_2$ is stable at $21\\%$. Which chemical compound inside NASA scrubber canisters reacts with $\\text{CO}_2$ gas to trap it as solid carbonate crust?
+              🧠 STEP 1 (THINK & ANSWER): Crew breathing raised cabin CO₂ to 4.8 mmHg while O₂ is still 21%. Which compound chemically absorbs CO₂ gas into solid carbonate ($2\\text{LiOH} + \\text{CO}_2 \\rightarrow \\text{Li}_2\\text{CO}_3 + \\text{H}_2\\text{O}$)?
             </div>
             ${st.quizPassed ? `
-              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! Lithium Hydroxide ($2\\text{LiOH} + \\text{CO}_2 \\rightarrow \\text{Li}_2\\text{CO}_3 + \\text{H}_2\\text{O}$) scrubs carbon dioxide!</div>
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! Lithium Hydroxide (LiOH) scrubs toxic CO₂ gas without changing oxygen partial pressure.</div>
             ` : `
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <button onclick="game.answerEclssQuiz(true)" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/40 text-xs font-mono-tech text-cyan-200">Lithium Hydroxide (LiOH)</button>
-                <button onclick="game.answerEclssQuiz(false)" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono-tech text-slate-300">Liquid Nitrogen (N₂)</button>
-                <button onclick="game.answerEclssQuiz(false)" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono-tech text-slate-300">Helium-4 Cryo Gas</button>
+              <div class="flex flex-wrap gap-2">
+                <button onclick="game.eclssState.quizPassed=true; sfx.play('orb'); game.renderEclssLeakModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-900 border border-cyan-400 text-xs font-mono-tech text-cyan-200">Lithium Hydroxide (LiOH)</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-rose-900 border border-slate-700 text-xs font-mono-tech text-slate-300">Liquid Nitrogen (N₂)</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-rose-900 border border-slate-700 text-xs font-mono-tech text-slate-300">Helium Plasma</button>
               </div>
             `}
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Step 2: Interactive O2 Pipe Micro-Fracture Patching -->
             <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
-              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: SEAL HISSING O₂ PIPE FRACTURES</div>
-              <p class="text-[11px] text-slate-400">Click both spraying gas fractures on the high-pressure O₂ supply pipe to apply Kapton pressure patches:</p>
-              <div class="relative h-24 bg-slate-900 rounded-xl border border-slate-700 flex items-center px-4 overflow-hidden">
-                <!-- Horizontal Metallic Pipe -->
-                <div class="w-full h-7 bg-gradient-to-b from-slate-400 via-slate-200 to-slate-500 rounded-full border-2 border-slate-700 flex items-center justify-around">
-                  <button onclick="game.patchLeak(0)" class="px-3 py-1 rounded-full font-mono-tech font-bold text-[10px] shadow ${st.leaksPatched[0] ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white animate-bounce'}">
-                    ${st.leaksPatched[0] ? '✔ PATCHED' : '💨 SEAL LEAK #1'}
-                  </button>
-                  <button onclick="game.patchLeak(1)" class="px-3 py-1 rounded-full font-mono-tech font-bold text-[10px] shadow ${st.leaksPatched[1] ? 'bg-emerald-500 text-slate-950' : 'bg-rose-600 text-white animate-bounce'}">
-                    ${st.leaksPatched[1] ? '✔ PATCHED' : '💨 SEAL LEAK #2'}
-                  </button>
-                </div>
+              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: SEAL O₂ PIPE MICRO-FRACTURES</div>
+              <p class="text-[11px] text-slate-400">Click the spraying pipe fractures below to apply Kapton pressure patches:</p>
+              <div class="space-y-2.5">
+                ${[0, 1].map(i => `
+                  <div onclick="game.eclssState.leaksPatched[${i}]=true; sfx.play('switch'); game.renderEclssLeakModal();" class="cursor-pointer p-3 rounded-xl border-2 flex items-center justify-between ${
+                    st.leaksPatched[i] ? 'bg-emerald-950/40 border-emerald-500 text-emerald-300' : 'bg-rose-950/50 border-rose-500 text-rose-200 animate-pulse'
+                  }">
+                    <span class="font-mono-tech text-xs font-bold">O₂ MANIFOLD LINE #${i + 1}</span>
+                    <span class="px-2.5 py-1 rounded bg-slate-900 text-[10px] font-mono-tech font-bold">
+                      ${st.leaksPatched[i] ? '✔ SEALED' : '💨 CLICK TO PATCH LEAK'}
+                    </span>
+                  </div>
+                `).join('')}
               </div>
             </div>
 
-            <!-- Step 3: 3-Stage LiOH Canister Manifold Replacement -->
             <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
-              <div class="text-xs font-orbitron font-bold text-amber-300">STEP 3: SWAP SATURATED LiOH CANISTER B</div>
-              <button onclick="game.eclssState.valveIsolated=true; sfx.play('switch'); game.renderEclssLeakModal();" ${!leaksDone || st.valveIsolated ? 'disabled' : ''} class="w-full py-2 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.valveIsolated ? 'bg-slate-800 text-emerald-400' : 'bg-amber-400 text-slate-950'}">
-                <span>1. Rotate Isolation Valve Wheel B</span>
-                <span>${st.valveIsolated ? '✔ CLOSED' : 'TURN WHEEL'}</span>
+              <div class="text-xs font-orbitron font-bold text-amber-300">STEP 3: 3-STAGE LiOH CANISTER MANIFOLD</div>
+              <button onclick="game.eclssState.valveTurned=true; sfx.play('switch'); game.renderEclssLeakModal();" ${!leaksDone ? 'disabled' : ''} class="w-full py-2.5 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.valveTurned ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/40' : 'bg-amber-400 text-slate-950'}">
+                <span>1. Rotate Isolation Wheel Valve B</span>
+                <span>${st.valveTurned ? '✔ ISOLATED' : 'TURN WHEEL'}</span>
               </button>
-              <button onclick="game.eclssState.oldEjected=true; sfx.play('switch'); game.renderEclssLeakModal();" ${!st.valveIsolated || st.oldEjected ? 'disabled' : ''} class="w-full py-2 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.oldEjected ? 'bg-slate-800 text-emerald-400' : 'bg-rose-500 text-white'}">
-                <span>2. Eject 98% Crusted Li₂CO₃ Canister</span>
+              <button onclick="game.eclssState.oldEjected=true; sfx.play('switch'); game.renderEclssLeakModal();" ${!st.valveTurned ? 'disabled' : ''} class="w-full py-2.5 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.oldEjected ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/40' : 'bg-rose-500 text-white'}">
+                <span>2. Eject Crusted 98% Li₂CO₃ Cartridge</span>
                 <span>${st.oldEjected ? '✔ EJECTED' : 'EJECT OLD'}</span>
               </button>
-              <button onclick="game.eclssState.freshInserted=true; sfx.play('win'); game.renderEclssLeakModal();" ${!st.oldEjected || st.freshInserted ? 'disabled' : ''} class="w-full py-2 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.freshInserted ? 'bg-slate-800 text-emerald-400' : 'bg-cyan-400 text-slate-950'}">
+              <button onclick="game.eclssState.newInserted=true; sfx.play('orb'); game.renderEclssLeakModal();" ${!st.oldEjected ? 'disabled' : ''} class="w-full py-2.5 px-3 rounded-xl font-mono-tech text-xs font-bold flex justify-between ${st.newInserted ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-500/40' : 'bg-cyan-400 text-slate-950'}">
                 <span>3. Lock Fresh LiOH Cartridge & Pressurize</span>
-                <span>${st.freshInserted ? '✔ SCRUBBING' : 'INSERT FRESH'}</span>
+                <span>${st.newInserted ? '✔ SCRUBBING 1.1 mmHg' : 'INSERT NEW'}</span>
               </button>
             </div>
           </div>
 
           <div class="flex justify-end pt-2">
             <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
-              ✅ CONFIRM ATMOSPHERE RESTORED (CO₂ 1.1 mmHg) ▶
+              ✅ CONFIRM ATMOSPHERE NOMINAL (21% O₂ / 1.1 mmHg CO₂) ▶
             </button>
           </div>
         `;
       },
 
-      answerEclssQuiz(correct) {
-        if (correct) {
-          sfx.play('orb');
-          this.eclssState.quizPassed = true;
-          this.renderEclssLeakModal();
-        } else {
-          sfx.play('hit');
-        }
-      },
-
-      patchLeak(idx) {
-        sfx.play('switch');
-        this.eclssState.leaksPatched[idx] = true;
-        this.renderEclssLeakModal();
-      },
-
       /* ===================================================================
-         PUZZLE 3: REACTOR & GNC — 2D GYROSCOPE & RCS THRUSTER VECTOR RING
+         PUZZLE 3: REACTOR & GNC — 2D GYROSCOPE & RCS VECTOR THRUSTER RING
       =================================================================== */
       openGyroRcsModal() {
         sfx.play('switch');
         this.gyroState = {
           quizPassed: false,
-          driftX: 60,
-          driftY: -45,
-          wheelRpm: 5900
+          targetX: 2,
+          targetY: -2,
+          rpm: 5900
         };
         this.renderGyroRcsModal();
         document.getElementById('stationModal').classList.remove('hidden');
@@ -1473,97 +1633,96 @@
 
       renderGyroRcsModal() {
         const g = this.gyroState;
-        const centered = Math.hypot(g.driftX, g.driftY) <= 18;
+        const centered = g.targetX === 0 && g.targetY === 0;
         const allDone = g.quizPassed && centered;
 
         document.getElementById('stationModalContent').innerHTML = `
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <span class="px-2.5 py-0.5 rounded bg-purple-500/20 border border-purple-400 text-purple-300 font-mono-tech text-[10px] font-bold">
-                🟢 [REAL NASA GNC ATTITUDE CONTROL]
+                🟢 [REAL NASA GNC ANGULAR MOMENTUM DESATURATION]
               </span>
               <h3 class="font-orbitron font-black text-lg text-white mt-1">
-                REACTOR & GNC — GYROSCOPE & RCS MOMENTUM DUMP
+                REACTOR & GNC BAY — GYROSCOPE THRUSTER VECTORING
               </h3>
             </div>
             <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
           </div>
 
-          <!-- Step 1: Physics Reasoning Check -->
           <div class="p-3 rounded-2xl ${g.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
             <div class="text-xs font-bold text-amber-200">
-              🧠 STEP 1 (THINK & ANSWER): If our spacecraft nose is drifting toward <b>+X (Right)</b> and <b>-Y (Up)</b> while the Reaction Wheel is saturated at 5,900 RPM, which external RCS thrusters must we fire to push the reticle back to Center (0,0)?
+              🧠 STEP 1 (THINK & ANSWER): If a reaction wheel spins up to 5,900 RPM (+X/+Y drift), why can't we just switch off the motor without firing exterior RCS thrusters?
             </div>
             ${g.quizPassed ? `
-              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! By Newton's 3rd Law & Conservation of Angular Momentum, fire opposing counter-thrusters to push the vector back to (0,0)!</div>
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! By conservation of angular momentum, braking the wheel alone transfers spin into the spacecraft hull!</div>
             ` : `
               <div class="flex flex-wrap gap-2">
-                <button onclick="game.gyroState.quizPassed=true; sfx.play('orb'); game.renderGyroRcsModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-400 text-xs font-mono-tech text-cyan-200">Opposing Counter-Torque Thrusters</button>
-                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">Unplug the Flight Computer</button>
+                <button onclick="game.gyroState.quizPassed=true; sfx.play('orb'); game.renderGyroRcsModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-400 text-xs font-mono-tech text-cyan-200">Braking the wheel transfers spin to the spacecraft hull</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">It melts the solar panels</button>
               </div>
             `}
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-            <!-- Left 6 Cols: 2D Bullseye Gyroscope Reticle -->
-            <div class="md:col-span-6 flex flex-col items-center bg-slate-950 p-4 rounded-2xl border border-slate-800">
-              <svg viewBox="-100 -100 200 200" class="w-44 h-44 bg-slate-900 rounded-full border-2 border-cyan-500/50">
-                <circle cx="0" cy="0" r="75" fill="none" stroke="#1e293b" stroke-width="2"/>
-                <circle cx="0" cy="0" r="45" fill="none" stroke="#334155" stroke-dasharray="4 4"/>
-                <circle cx="0" cy="0" r="18" fill="rgba(16,185,129,0.2)" stroke="#10b981" stroke-width="2"/>
-                <line x1="-90" y1="0" x2="90" y2="0" stroke="#334155"/>
-                <line x1="0" y1="-90" x2="0" y2="90" stroke="#334155"/>
-                <!-- Drifting Spacecraft Nose Vector Marker -->
-                <circle cx="${g.driftX}" cy="${g.driftY}" r="10" fill="${centered ? '#10b981' : '#f43f5e'}" stroke="#fff" stroke-width="2.5"/>
-              </svg>
-              <div class="mt-2 font-mono-tech text-xs ${centered ? 'text-emerald-400 font-bold' : 'text-rose-400'}">
-                VECTOR OFFSET: X=${g.driftX}, Y=${g.driftY} | WHEEL: ${g.wheelRpm} RPM
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center">
+              <div class="text-xs font-mono-tech text-purple-300 mb-2">ATTITUDE VECTOR RETICLE • WHEEL: <b>${g.rpm} RPM</b></div>
+              <div class="w-44 h-44 rounded-full bg-slate-900 border-4 border-purple-500/60 relative flex items-center justify-center">
+                <div class="absolute inset-x-0 h-px bg-slate-700"></div>
+                <div class="absolute inset-y-0 w-px bg-slate-700"></div>
+                <div class="w-12 h-12 rounded-full border-2 border-dashed border-emerald-400"></div>
+                <div class="w-7 h-7 rounded-full ${centered ? 'bg-emerald-400' : 'bg-rose-500'} border-2 border-white shadow-lg transition-all flex items-center justify-center text-[10px] font-bold text-slate-950"
+                     style="transform: translate(${g.targetX * 26}px, ${g.targetY * 26}px);">
+                  🎯
+                </div>
+              </div>
+              <div class="text-[11px] font-mono-tech mt-2 ${centered ? 'text-emerald-400 font-bold' : 'text-amber-300'}">
+                OFFSET: X = ${g.targetX}, Y = ${g.targetY} ${centered ? '(CENTERED!)' : '(PULSE RCS TO ZERO)'}
               </div>
             </div>
 
-            <!-- Right 6 Cols: 4 Directional RCS Thruster Pulse Buttons -->
-            <div class="md:col-span-6 space-y-3">
-              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: FIRE RCS THRUSTERS TO CENTER DOT IN GREEN RING</div>
-              <div class="grid grid-cols-3 gap-2 w-48 mx-auto">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 text-center">
+              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: FIRE OPPOSING RCS THRUSTER BURSTS</div>
+              <p class="text-[11px] text-slate-400">Fire directional hydrazine thruster pulses to move the red reticle into the green center bullseye (0, 0):</p>
+              <div class="grid grid-cols-3 gap-2 max-w-[220px] mx-auto">
                 <div></div>
-                <button onclick="game.nudgeGyro(0, -15)" class="p-3 rounded-xl bg-slate-800 hover:bg-cyan-600 border border-cyan-400 font-mono-tech font-bold text-xs">▲ -Y</button>
+                <button onclick="game.pulseGyro(0, -1)" class="p-3 rounded-xl bg-slate-800 hover:bg-purple-600 border border-purple-400 font-mono-tech font-bold text-xs">▲ -Y</button>
                 <div></div>
-                <button onclick="game.nudgeGyro(-15, 0)" class="p-3 rounded-xl bg-slate-800 hover:bg-cyan-600 border border-cyan-400 font-mono-tech font-bold text-xs">◀ -X</button>
-                <div class="flex items-center justify-center text-[10px] font-mono-tech text-emerald-300">RCS</div>
-                <button onclick="game.nudgeGyro(15, 0)" class="p-3 rounded-xl bg-slate-800 hover:bg-cyan-600 border border-cyan-400 font-mono-tech font-bold text-xs">▶ +X</button>
+                <button onclick="game.pulseGyro(-1, 0)" class="p-3 rounded-xl bg-slate-800 hover:bg-purple-600 border border-purple-400 font-mono-tech font-bold text-xs">◀ -X</button>
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[10px] font-mono-tech text-purple-300 flex items-center justify-center">RCS</div>
+                <button onclick="game.pulseGyro(1, 0)" class="p-3 rounded-xl bg-slate-800 hover:bg-purple-600 border border-purple-400 font-mono-tech font-bold text-xs">+X ▶</button>
                 <div></div>
-                <button onclick="game.nudgeGyro(0, 15)" class="p-3 rounded-xl bg-slate-800 hover:bg-cyan-600 border border-cyan-400 font-mono-tech font-bold text-xs">▼ +Y</button>
+                <button onclick="game.pulseGyro(0, 1)" class="p-3 rounded-xl bg-slate-800 hover:bg-purple-600 border border-purple-400 font-mono-tech font-bold text-xs">▼ +Y</button>
                 <div></div>
               </div>
-              <p class="text-[11px] text-slate-400 text-center">Each opposing thruster pulse dumps 750 RPM from the saturated reaction wheel!</p>
             </div>
           </div>
 
           <div class="flex justify-end pt-2">
             <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
-              ✅ LOCK ATTITUDE GYRO & DUMP MOMENTUM ▶
+              ✅ LOCK GYRO MOMENTUM DUMP (1,100 RPM) ▶
             </button>
           </div>
         `;
       },
 
-      nudgeGyro(dx, dy) {
+      pulseGyro(dx, dy) {
         sfx.play('switch');
-        this.gyroState.driftX = Math.max(-80, Math.min(80, this.gyroState.driftX + dx));
-        this.gyroState.driftY = Math.max(-80, Math.min(80, this.gyroState.driftY + dy));
-        this.gyroState.wheelRpm = Math.max(1150, this.gyroState.wheelRpm - 750);
+        this.gyroState.targetX = Math.max(-3, Math.min(3, this.gyroState.targetX + dx));
+        this.gyroState.targetY = Math.max(-3, Math.min(3, this.gyroState.targetY + dy));
+        const dist = Math.abs(this.gyroState.targetX) + Math.abs(this.gyroState.targetY);
+        this.gyroState.rpm = 1100 + dist * 1200;
         this.renderGyroRcsModal();
       },
 
       /* ===================================================================
-         PUZZLE 4: ENGINE / CRYO BAY — COLOR CONDUIT WIRING & PRESSURE SLIDERS
+         PUZZLE 4: UPPER ENGINE BAY — 5-LAYER SUNSHIELD & 6.7K HELIUM CRYOCOOLER
       =================================================================== */
       openCryoConduitModal() {
         sfx.play('switch');
         this.conduitState = {
           quizPassed: false,
-          selectedColor: 'red',
-          wired: { red: false, cyan: false, gold: false },
+          sunshieldLayers: 0,
+          heliumCryoOn: false,
           pressures: [35, 85, 30]
         };
         this.renderCryoConduitModal();
@@ -1572,79 +1731,288 @@
 
       renderCryoConduitModal() {
         const c = this.conduitState;
-        const allWired = c.wired.red && c.wired.cyan && c.wired.gold;
-        const pressOk = c.pressures.every(p => p >= 55 && p <= 70);
-        const allDone = c.quizPassed && allWired && pressOk;
+        const shieldDone = c.sunshieldLayers >= 5;
+        const tempK = !shieldDone ? (290 - c.sunshieldLayers * 50) : (c.heliumCryoOn ? 6.7 : 40);
+        const allDone = c.quizPassed && shieldDone && c.heliumCryoOn;
 
         document.getElementById('stationModalContent').innerHTML = `
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
-              <span class="px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono-tech text-[10px] font-bold">
-                🟢 [REAL NASA CRYOGENIC & RF CONDUIT BUS]
+              <span class="px-2.5 py-0.5 rounded bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-mono-tech text-[10px] font-bold">
+                🟢 [REAL NASA JWST & MIRI THERMAL ENGINEERING]
               </span>
               <h3 class="font-orbitron font-black text-lg text-white mt-1">
-                UPPER ENGINE BAY — CONDUIT MATRIX & PRESSURE EQUALIZER
+                UPPER CRYO BAY — 5-LAYER SUNSHIELD & 6.7K HELIUM COOLER
               </h3>
             </div>
             <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
           </div>
 
-          <!-- Step 1: Think & Answer Thermal Physics Question -->
           <div class="p-3 rounded-2xl ${c.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
             <div class="text-xs font-bold text-amber-200">
-              🧠 STEP 1 (THINK & ANSWER): Why must deep-space infrared detectors (like JWST’s MIRI) and low-noise radio amplifiers be actively cooled near absolute zero ($6.7\\text{ K}$)?
+              🧠 STEP 1 (THINK & ANSWER): JWST's 5-layer Kapton sunshield passively cools the observatory to $40\\text{ K}$. Why does the Mid-Infrared Instrument (MIRI) need an additional active Helium cryocooler to reach $6.7\\text{ K}$?
             </div>
             ${c.quizPassed ? `
-              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! Extreme cryogenic cooling prevents the spacecraft's own heat (thermal infrared glow) from blinding the faint cosmic signal!</div>
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! At 40 K, the telescope itself still glows in mid-infrared—cooling to 6.7 K eliminates thermal dark-current noise!</div>
             ` : `
               <div class="flex flex-wrap gap-2">
-                <button onclick="game.conduitState.quizPassed=true; sfx.play('orb'); game.renderCryoConduitModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-400 text-xs font-mono-tech text-cyan-200">To prevent spacecraft thermal noise from blinding faint signals</button>
-                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">To freeze incoming asteroids</button>
+                <button onclick="game.conduitState.quizPassed=true; sfx.play('orb'); game.renderCryoConduitModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-cyan-400 text-xs font-mono-tech text-cyan-200">To stop the telescope's own heat from blinding mid-infrared sensors</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">To make the solar panels spin faster</button>
               </div>
             `}
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Step 2: Color-Coded Conduit Coupler -->
-            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
-              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: COUPLE ALL 3 COLOR-CODED CONDUITS</div>
-              <p class="text-[11px] text-slate-400">Click each conduit terminal to lock the High-Voltage (Red), Helium Cryo (Cyan), and Telemetry (Gold) lines:</p>
-              ${[
-                { key: 'red',  name: 'RED: 28V PRIMARY POWER TRUNK', cls: 'border-rose-500 bg-rose-950/40 text-rose-200' },
-                { key: 'cyan', name: 'CYAN: 6.7K HELIUM CRYO LINE',  cls: 'border-cyan-400 bg-cyan-950/40 text-cyan-200' },
-                { key: 'gold', name: 'GOLD: FIBER WAVEGUIDE BUS',    cls: 'border-amber-400 bg-amber-950/40 text-amber-200' }
-              ].map(line => `
-                <button onclick="game.conduitState.wired['${line.key}']=true; sfx.play('switch'); game.renderCryoConduitModal();" class="w-full p-2.5 rounded-xl border font-mono-tech text-xs font-bold flex justify-between items-center ${line.cls}">
-                  <span>${line.name}</span>
-                  <span>${c.wired[line.key] ? '⚡ COUPLED ✓' : '🔌 CLICK TO WIRE'}</span>
-                </button>
-              `).join('')}
+            <!-- Visual 5-Layer Kapton Sunshield Stack -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-xs font-orbitron font-bold text-amber-300">STEP 2: TENSION 5 KAPTON SUNSHIELD LAYERS</span>
+                <span class="font-mono-tech text-xs text-cyan-300">${c.sunshieldLayers} / 5 Layers</span>
+              </div>
+              <div class="space-y-1.5 py-1">
+                ${[1, 2, 3, 4, 5].map(layer => `
+                  <div class="h-4 rounded-full transition-all border ${c.sunshieldLayers >= layer ? 'bg-gradient-to-r from-amber-300 via-pink-400 to-purple-500 border-white shadow' : 'bg-slate-900 border-slate-700'}"></div>
+                `).join('')}
+              </div>
+              <button onclick="game.conduitState.sunshieldLayers=Math.min(5, game.conduitState.sunshieldLayers+1); sfx.play('switch'); game.renderCryoConduitModal();" ${shieldDone ? 'disabled' : ''} class="w-full py-2.5 rounded-xl font-orbitron font-bold text-xs ${shieldDone ? 'bg-slate-800 text-emerald-400' : 'bg-amber-400 text-slate-950'}">
+                ${shieldDone ? '✔ ALL 5 SUNSHIELD MEMBRANES TENSIONED (40 K)' : '🔼 DEPLOY NEXT KAPTON SUNSHIELD LAYER'}
+              </button>
             </div>
 
-            <!-- Step 3: 3-Channel Pressure Equalizer Sliders -->
-            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2.5">
-              <div class="text-xs font-orbitron font-bold text-amber-300">STEP 3: ALIGN ALL 3 MANIFOLD PRESSURES (55–70 PSI)</div>
-              ${[0, 1, 2].map(i => {
-                const val = c.pressures[i];
-                const ok = val >= 55 && val <= 70;
-                return `
-                  <div class="space-y-1">
-                    <div class="flex justify-between font-mono-tech text-[11px]">
-                      <span class="text-slate-300">VALVE LINE #${i + 1}: <b>${val} PSI</b></span>
-                      <span class="${ok ? 'text-emerald-400 font-bold' : 'text-amber-300'}">${ok ? '✔ GREEN BAND' : 'SET TO 60 PSI'}</span>
-                    </div>
-                    <input type="range" min="20" max="95" step="5" value="${val}"
-                      oninput="game.conduitState.pressures[${i}]=parseInt(this.value,10); game.renderCryoConduitModal();"
-                      class="w-full accent-emerald-400 cursor-pointer" />
-                  </div>
-                `;
-              }).join('')}
+            <!-- Active Helium Pulse-Tube Cryocooler -->
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 3: ACTIVE HELIUM PULSE-TUBE COOLER</div>
+                <p class="text-[11px] text-slate-400 mt-1">Once passive sunshield reaches 40 K, engage the closed-cycle Helium refrigerator to chill MIRI to 6.7 K:</p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-center">
+                <div class="text-[10px] font-mono-tech text-slate-400">LIVE DETECTOR TEMPERATURE</div>
+                <div class="font-orbitron font-black text-3xl ${tempK <= 7 ? 'text-emerald-400' : 'text-amber-300'}">${tempK} K</div>
+              </div>
+              <button onclick="game.conduitState.heliumCryoOn=true; sfx.play('win'); game.renderCryoConduitModal();" ${(!shieldDone || c.heliumCryoOn) ? 'disabled' : ''} class="w-full py-2.5 rounded-xl font-orbitron font-bold text-xs ${c.heliumCryoOn ? 'bg-slate-800 text-emerald-400' : (shieldDone ? 'bg-cyan-400 text-slate-950' : 'bg-slate-900 text-slate-600')}">
+                ${c.heliumCryoOn ? '✔ 6.7 K CRYO-LOCK ACHIEVED' : '❄️ ENGAGE HELIUM CRYOCOOLER'}
+              </button>
             </div>
           </div>
 
           <div class="flex justify-end pt-2">
             <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
-              ✅ ENGAGE CRYOGENIC & PROPULSION MANIFOLD ▶
+              ✅ CONFIRM 6.7 K INFRARED DETECTOR READY ▶
+            </button>
+          </div>
+        `;
+      },
+
+      /* ===================================================================
+         PUZZLE 5: LOWER OPTICS BAY — GOLD HEXAGONAL MIRROR ALIGNMENT (Mission 2 Unique)
+      =================================================================== */
+      openHexMirrorModal() {
+        sfx.play('switch');
+        this.mirrorState = {
+          quizPassed: false,
+          segments: [true, false, true, false, true, false, true]
+        };
+        this.renderHexMirrorModal();
+        document.getElementById('stationModal').classList.remove('hidden');
+      },
+
+      renderHexMirrorModal() {
+        const m = this.mirrorState;
+        const allAligned = m.segments.every(Boolean);
+        const allDone = m.quizPassed && allAligned;
+
+        document.getElementById('stationModalContent').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono-tech text-[10px] font-bold">
+                🟢 [REAL NASA JWST WAVEFRONT SENSING & OPTICS]
+              </span>
+              <h3 class="font-orbitron font-black text-lg text-white mt-1">
+                LOWER OPTICS BAY — HEXAGONAL GOLD MIRROR PHASING
+              </h3>
+            </div>
+            <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
+          </div>
+
+          <div class="p-3 rounded-2xl ${m.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
+            <div class="text-xs font-bold text-amber-200">
+              🧠 STEP 1 (THINK & ANSWER): Why are JWST's 18 hexagonal beryllium mirror segments coated in a microscopic layer of pure <b>Gold (Au)</b>?
+            </div>
+            ${m.quizPassed ? `
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! Gold reflects 98%+ of red and infrared starlight—far better than aluminum or silver for exoplanet spectroscopy!</div>
+            ` : `
+              <div class="flex flex-wrap gap-2">
+                <button onclick="game.mirrorState.quizPassed=true; sfx.play('orb'); game.renderHexMirrorModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-400 text-xs font-mono-tech text-amber-200">Gold reflects 98% of infrared starlight</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">To make the spacecraft heavier</button>
+              </div>
+            `}
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3 text-center">
+            <div class="text-xs font-orbitron font-bold text-amber-300">
+              STEP 2: CLICK THE BLURRY RED HEXAGON SEGMENTS TO ACTUATE NANO-MOTORS & PHASE THE HONEYCOMB MIRROR
+            </div>
+            <div class="flex flex-wrap justify-center gap-3 py-2">
+              ${m.segments.map((aligned, idx) => `
+                <button onclick="game.mirrorState.segments[${idx}]=true; sfx.play('orb'); game.renderHexMirrorModal();" class="w-20 h-20 rounded-2xl border-2 font-mono-tech font-bold text-xs flex flex-col items-center justify-center transition ${
+                  aligned ? 'bg-gradient-to-br from-yellow-300 to-amber-500 text-slate-950 border-white shadow-[0_0_20px_rgba(250,204,21,0.7)]' : 'bg-rose-950/80 text-rose-200 border-rose-500 animate-pulse'
+                }">
+                  <span class="text-lg">⬢</span>
+                  <span>SEG #${idx + 1}</span>
+                  <span class="text-[9px]">${aligned ? 'PHASED' : 'CLICK FIX'}</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
+              ✅ LOCK DIFFRACTION-LIMITED POINT SPREAD FUNCTION ▶
+            </button>
+          </div>
+        `;
+      },
+
+      /* ===================================================================
+         PUZZLE 6: VOYAGER ARCHIVE BAY — GOLDEN RECORD PULSAR & H-SPIN DECODER (Mission 3 Unique)
+      =================================================================== */
+      openGoldenRecordModal() {
+        sfx.play('switch');
+        this.voyagerState = {
+          quizPassed: false,
+          quadrantsUnlocked: [false, false, false, false]
+        };
+        this.renderGoldenRecordModal();
+        document.getElementById('stationModal').classList.remove('hidden');
+      },
+
+      renderGoldenRecordModal() {
+        const v = this.voyagerState;
+        const allQuads = v.quadrantsUnlocked.every(Boolean);
+        const allDone = v.quizPassed && allQuads;
+
+        const quads = [
+          { title: '14 PULSAR STAR MAP', desc: 'Triangulates our Sun’s exact location using millisecond pulsar periods' },
+          { title: 'H-ATOM SPIN-FLIP (1420 MHz)', desc: 'Defines the universal time & length unit (21 cm / 0.7 ns)' },
+          { title: 'STYLUS & 16⅔ RPM DIAGRAM', desc: 'Shows how to play the copper audio/video phonograph grooves' },
+          { title: 'URANIUM-238 RADIOACTIVE CLOCK', desc: 'Half-life of 4.468 billion years dates when Voyager launched' }
+        ];
+
+        document.getElementById('stationModalContent').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="px-2.5 py-0.5 rounded bg-amber-500/20 border border-amber-400 text-amber-300 font-mono-tech text-[10px] font-bold">
+                🟢 [REAL 1977 NASA VOYAGER GOLDEN RECORD ARTIFACT]
+              </span>
+              <h3 class="font-orbitron font-black text-lg text-white mt-1">
+                VOYAGER ARCHIVE BAY — GOLDEN RECORD COVER DECODER
+              </h3>
+            </div>
+            <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
+          </div>
+
+          <div class="p-3 rounded-2xl ${v.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
+            <div class="text-xs font-bold text-amber-200">
+              🧠 STEP 1 (THINK & ANSWER): Carl Sagan's committee engraved two linked circles (<span class="font-mono-tech text-cyan-300">o—o</span>) at the bottom of the Voyager Golden Record cover. What universal atomic transition do those two circles represent?
+            </div>
+            ${v.quizPassed ? `
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! The hyperfine spin-flip transition of Neutral Hydrogen (1420.4 MHz / 21 cm)—our universal cosmic ruler!</div>
+            ` : `
+              <div class="flex flex-wrap gap-2">
+                <button onclick="game.voyagerState.quizPassed=true; sfx.play('orb'); game.renderGoldenRecordModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-amber-400 text-xs font-mono-tech text-amber-200">Neutral Hydrogen Spin-Flip State (1420 MHz)</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">Pair of Sunglasses</button>
+              </div>
+            `}
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${quads.map((q, idx) => `
+              <div onclick="game.voyagerState.quadrantsUnlocked[${idx}]=true; sfx.play('switch'); game.renderGoldenRecordModal();" class="cursor-pointer p-3.5 rounded-2xl border-2 transition ${
+                v.quadrantsUnlocked[idx] ? 'bg-amber-500/20 border-amber-300 text-amber-100' : 'bg-slate-950 border-slate-700 text-slate-300 hover:border-amber-400/60'
+              }">
+                <div class="flex justify-between items-center font-orbitron font-bold text-xs text-amber-300">
+                  <span>💿 ${q.title}</span>
+                  <span>${v.quadrantsUnlocked[idx] ? '✔ DECODED' : 'DECODE'}</span>
+                </div>
+                <p class="text-[11px] mt-1">${q.desc}</p>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-amber-400 to-purple-500 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
+              ✅ GOLDEN RECORD TELEMETRY CALIBRATED ▶
+            </button>
+          </div>
+        `;
+      },
+
+      /* ===================================================================
+         PUZZLE 7: ASTROBIOLOGY LAB — EUROPA CLIPPER & BENNU CHROMATOGRAPH (Mission 3 Unique)
+      =================================================================== */
+      openAstroBioLabModal() {
+        sfx.play('switch');
+        this.bioLabState = {
+          quizPassed: false,
+          europaSalinityScanned: false,
+          bennuAminoIdentified: false
+        };
+        this.renderAstroBioLabModal();
+        document.getElementById('stationModal').classList.remove('hidden');
+      },
+
+      renderAstroBioLabModal() {
+        const b = this.bioLabState;
+        const allDone = b.quizPassed && b.europaSalinityScanned && b.bennuAminoIdentified;
+
+        document.getElementById('stationModalContent').innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <span class="px-2.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-400 text-emerald-300 font-mono-tech text-[10px] font-bold">
+                🟢 [REAL NASA EUROPA CLIPPER & OSIRIS-REx ASTROBIOLOGY]
+              </span>
+              <h3 class="font-orbitron font-black text-lg text-white mt-1">
+                ASTROBIOLOGY LAB — HABITABILITY & PREBIOTIC BIOMARKERS
+              </h3>
+            </div>
+            <button onclick="game.closeModals()" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300">✕</button>
+          </div>
+
+          <div class="p-3 rounded-2xl ${b.quizPassed ? 'bg-emerald-950/60 border border-emerald-400' : 'bg-slate-950 border border-amber-400/60'} space-y-2">
+            <div class="text-xs font-bold text-amber-200">
+              🧠 STEP 1 (THINK & ANSWER): Has NASA confirmed living extraterrestrial organisms on Europa or Asteroid Bennu, OR has NASA discovered liquid water oceans and prebiotic chemical building blocks?
+            </div>
+            ${b.quizPassed ? `
+              <div class="text-xs text-emerald-300 font-mono-tech font-bold">✔ CORRECT! Humanity has 0 confirmed alien life discoveries so far, but NASA proved subsurface liquid oceans (Europa) and prebiotic amino acids/carbon (Bennu)!</div>
+            ` : `
+              <div class="flex flex-wrap gap-2">
+                <button onclick="game.bioLabState.quizPassed=true; sfx.play('orb'); game.renderAstroBioLabModal();" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-emerald-400 text-xs font-mono-tech text-emerald-200">Liquid Subsurface Oceans & Prebiotic Chemical Building Blocks</button>
+                <button onclick="sfx.play('hit')" class="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono-tech text-slate-400">Confirmed Alien Cities</button>
+              </div>
+            `}
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+              <div class="text-xs font-orbitron font-bold text-cyan-300">STEP 2: EUROPA INDUCED MAGNETIC FIELD SCAN</div>
+              <p class="text-[11px] text-slate-400">Run the magnetometer scan across Jupiter's moon Europa to detect the conductive saltwater ocean beneath its 15–25 km ice shell:</p>
+              <button onclick="game.bioLabState.europaSalinityScanned=true; sfx.play('orb'); game.renderAstroBioLabModal();" class="w-full py-3 rounded-xl font-orbitron font-bold text-xs ${b.europaSalinityScanned ? 'bg-emerald-500/20 border border-emerald-400 text-emerald-300' : 'bg-cyan-500 text-slate-950'}">
+                ${b.europaSalinityScanned ? '✔ GLOBAL SALTWATER OCEAN SIGNATURE VERIFIED (2× EARTH WATER)' : '🌊 SCAN EUROPA SUBSURFACE CONDUCTIVITY'}
+              </button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+              <div class="text-xs font-orbitron font-bold text-purple-300">STEP 3: OSIRIS-REx BENNU SAMPLE CHROMATOGRAPH</div>
+              <p class="text-[11px] text-slate-400">Analyze the 121.6 g pristine carbon sample returned from Asteroid Bennu in September 2023:</p>
+              <button onclick="game.bioLabState.bennuAminoIdentified=true; sfx.play('win'); game.renderAstroBioLabModal();" class="w-full py-3 rounded-xl font-orbitron font-bold text-xs ${b.bennuAminoIdentified ? 'bg-emerald-500/20 border border-emerald-400 text-emerald-300' : 'bg-purple-500 text-white'}">
+                ${b.bennuAminoIdentified ? '✔ HYDRATED CLAYS, CARBON & AMINO ACIDS ISOLATED' : '🧬 RUN BENNU MASS SPECTROMETER'}
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button ${allDone ? '' : 'disabled'} onclick="game.completeStep()" class="px-6 py-3 rounded-xl font-orbitron font-black text-xs ${allDone ? 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-slate-950 shadow-lg' : 'bg-slate-800 text-slate-500'}">
+              ✅ COMPLETE ASTROBIOLOGY VERIFICATION ▶
             </button>
           </div>
         `;
@@ -1971,33 +2339,32 @@
         const el = document.getElementById('hudClockTop');
         if (el) el.textContent = `0-${m}-${s}`;
 
-        const inGame = document.getElementById('startMenuModal').classList.contains('hidden');
+        if (this.viewMode === 'lobby' || this.missionFailed || this.viewMode === 'surface') return;
+
         const anyModalOpen =
           !document.getElementById('kitoModal').classList.contains('hidden') ||
           !document.getElementById('stationModal').classList.contains('hidden') ||
           !document.getElementById('lunanetModal').classList.contains('hidden') ||
           !document.getElementById('finaleModal').classList.contains('hidden');
 
-        if (!inGame || this.missionFailed || this.viewMode === 'surface' || anyModalOpen) return;
+        if (anyModalOpen) return;
 
-        if (this.viewMode === 'inside') {
-          if (this.meteorAlert.active) {
-            this.meteorAlert.countdown -= 0.2;
-            document.getElementById('meteorCountdownNum').textContent = Math.max(0, this.meteorAlert.countdown).toFixed(1);
-            if (this.meteorAlert.countdown <= 0) {
-              // Player ignored the meteorite warning while inside!
+        // Meteorite countdown ONLY runs during the dedicated Meteorite Obstacle step while inside the ship,
+        // so it NEVER interrupts the user while working on other interior room puzzles!
+        const step = this.currentStep();
+        if (this.viewMode === 'inside' && step && step.type === 'asteroid_dodge' && this.meteorAlert.active) {
+          this.meteorAlert.countdown -= 0.2;
+          document.getElementById('meteorCountdownNum').textContent = Math.max(0, this.meteorAlert.countdown).toFixed(1);
+          if (this.meteorAlert.countdown <= 0) {
+            this.meteorAlert.countdown = 14.0;
+            this.meteorsSpawnedCount++;
+            this.meteorsResolvedCount++;
+            document.getElementById('meteorIndexNum').textContent = Math.min(3, this.meteorsSpawnedCount + 1);
+            this.registerMeteorStrike(`Meteorite #${this.meteorsSpawnedCount} struck while you stayed inside! Switch to Outside View [V]!`);
+            if (!this.missionFailed && this.meteorsResolvedCount >= this.meteorQuota) {
               this.meteorAlert.active = false;
-              this.meteorAlert.cooldown = 16.0;
               document.getElementById('meteorWarningBanner').classList.add('hidden');
-              this.registerMeteorStrike('Ignored Meteorite Warning while inside the ship!');
-            }
-          } else {
-            this.meteorAlert.cooldown -= 0.2;
-            if (this.meteorAlert.cooldown <= 0) {
-              sfx.play('siren');
-              this.meteorAlert.active = true;
-              this.meteorAlert.countdown = 12.0;
-              document.getElementById('meteorWarningBanner').classList.remove('hidden');
+              this.completeStep();
             }
           }
         }
@@ -2015,7 +2382,14 @@
         const shieldsLeft = Math.max(0, this.maxMeteorHits - this.meteorHits);
         document.getElementById('hudStrikeIcons').textContent =
           '🛡️'.repeat(shieldsLeft) + '💥'.repeat(this.meteorHits);
-        document.getElementById('hudStrikeCount').textContent = `(${this.meteorHits}/3)`;
+        document.getElementById('hudStrikeCount').textContent = `(${this.meteorHits}/3 Hits)`;
+
+        const clearedEl = document.getElementById('hudMeteorsCleared');
+        if (clearedEl) clearedEl.textContent = `${this.meteorsResolvedCount} / ${this.meteorQuota}`;
+        const topDigits = document.getElementById('arcadeScoreDigits');
+        if (topDigits) {
+          topDigits.textContent = `METEORITES CLEARED: ${this.meteorsResolvedCount} / ${this.meteorQuota}`;
+        }
       },
 
       loop() {
@@ -2029,10 +2403,31 @@
 
         // Parallax Stars
         this.arcade.stars.forEach(s => {
-          s.y += this.viewMode === 'outside' ? s.vy * 2.5 : s.vy * 0.35;
+          s.y += this.viewMode === 'outside' ? s.vy * 2.2 : s.vy * 0.35;
           if (s.y > 720) { s.y = 0; s.x = Math.random() * 1200; }
         });
 
+        // 1. DROPSHIP WAITING ROOM LOBBY MOVEMENT (image_2f467e.jpg)
+        if (this.viewMode === 'lobby') {
+          let dx = 0, dy = 0;
+          if (this.keys.up)    dy -= 4.2;
+          if (this.keys.down)  dy += 4.2;
+          if (this.keys.left)  { dx -= 4.2; this.lobbyPlayer.facing = -1; }
+          if (this.keys.right) { dx += 4.2; this.lobbyPlayer.facing = 1; }
+          if (dx !== 0 || dy !== 0) {
+            this.lobbyPlayer.walkFrame += 0.22;
+            this.lobbyPlayer.x = Math.max(320, Math.min(880, this.lobbyPlayer.x + dx));
+            this.lobbyPlayer.y = Math.max(255, Math.min(585, this.lobbyPlayer.y + dy));
+          }
+          // Animate friendly AI crewmates inside the Dropship Lobby
+          this.lobbyBots.forEach(b => {
+            b.x += b.vx;
+            if (b.x < 355 || b.x > 830) b.vx *= -1;
+          });
+          return;
+        }
+
+        // 2. INSIDE SPACECRAFT MOVEMENT
         if (this.viewMode === 'inside') {
           let dx = 0, dy = 0;
           if (this.keys.up)    dy -= this.player.speed;
@@ -2054,85 +2449,61 @@
             document.getElementById('hudCurrentRoom').textContent = curRoom.name.split(' ')[0];
           }
         } else if (this.viewMode === 'outside') {
-          // Steer Detailed Rocketship
-          if (this.keys.left)  this.arcade.shipX -= 8.0;
-          if (this.keys.right) this.arcade.shipX += 8.0;
-          if (this.keys.up)    this.arcade.shipY = Math.max(410, this.arcade.shipY - 5.5);
-          if (this.keys.down)  this.arcade.shipY = Math.min(640, this.arcade.shipY + 5.5);
-          this.arcade.shipX = Math.max(80, Math.min(1120, this.arcade.shipX));
+          // 3. OUTSIDE REALISTIC SPACECRAFT FLIGHT & STRICT 3-TO-4 METEORITE SPAWNER
+          if (this.keys.left)  this.arcade.shipX -= 7.8;
+          if (this.keys.right) this.arcade.shipX += 7.8;
+          if (this.keys.up)    this.arcade.shipY = Math.max(390, this.arcade.shipY - 5.5);
+          if (this.keys.down)  this.arcade.shipY = Math.min(625, this.arcade.shipY + 5.5);
+          this.arcade.shipX = Math.max(95, Math.min(1105, this.arcade.shipX));
 
-          // 1. Spawn fewer ambient grey space rocks (non-lethal, minor deflection)
-          if (Math.random() < 0.018 && this.arcade.rocks.length < 4) {
-            const r = 18 + Math.random() * 14;
-            this.arcade.rocks.push({
-              x: 90 + Math.random() * 1020,
-              y: -40,
-              r,
-              vy: 2.8 + Math.random() * 1.5,
-              rot: 0,
-              vrot: (Math.random() - 0.5) * 0.04
-            });
+          // Spawn strictly 1 meteorite at a time until the 3 or 4 meteorite quota is reached!
+          if (this.meteorsSpawnedCount < this.meteorQuota && this.arcade.meteorites.length === 0) {
+            this.meteorSpawnTimer--;
+            if (this.meteorSpawnTimer <= 0) {
+              this.spawnBlazingMeteorite();
+              this.meteorSpawnTimer = 85; // Pause ~1.4s between each of the 3-4 meteorites
+            }
           }
 
-          // 2. Spawn distinct BLAZING RED/ORANGE METEORITES (Lethal: 3 hits = Mission Failed!)
-          if (Math.random() < 0.012 && this.arcade.meteorites.length < 2) {
-            this.spawnBlazingMeteorite();
-          }
-
-          // 3. Spawn Golden / Cyan Data Orbs
-          if (Math.random() < 0.035) {
+          // Spawn occasional Golden / Cyan Telemetry Data Orbs
+          if (Math.random() < 0.025 && this.arcade.orbs.length < 3) {
             this.arcade.orbs.push({
-              x: 90 + Math.random() * 1020,
+              x: 120 + Math.random() * 960,
               y: -20,
-              vy: 3.5,
-              color: Math.random() < 0.75 ? '#f59e0b' : '#06b6d4'
+              vy: 3.2,
+              color: Math.random() < 0.7 ? '#f59e0b' : '#06b6d4'
             });
           }
 
-          // Update Minor Rocks
-          for (let i = this.arcade.rocks.length - 1; i >= 0; i--) {
-            const rk = this.arcade.rocks[i];
-            rk.y += rk.vy;
-            rk.rot += rk.vrot;
-            if (Math.hypot(rk.x - this.arcade.shipX, rk.y - this.arcade.shipY) < rk.r + 24) {
-              sfx.play('switch');
-              this.arcade.score = Math.max(0, this.arcade.score - 15);
-              this.arcade.rocks.splice(i, 1);
-              continue;
-            }
-            if (rk.y > 760) {
-              this.arcade.score += 15;
-              this.arcade.rocks.splice(i, 1);
-            }
-          }
-
-          // Update Blazing Fireball Meteorites (Real 3-Strike Consequence)
+          // Update the 3 to 4 Tracked Meteorites
           for (let i = this.arcade.meteorites.length - 1; i >= 0; i--) {
             const m = this.arcade.meteorites[i];
             m.y += m.vy;
             m.x += m.vx;
-            m.rot += 0.07;
-            if (Math.hypot(m.x - this.arcade.shipX, m.y - this.arcade.shipY) < m.r + 26) {
+            m.rot += 0.05;
+            if (Math.hypot(m.x - this.arcade.shipX, m.y - this.arcade.shipY) < m.r + 30) {
               this.arcade.meteorites.splice(i, 1);
-              this.registerMeteorStrike('Direct hit by a blazing fireball meteorite!');
+              this.meteorsResolvedCount++;
+              this.registerMeteorStrike(`Direct impact from Meteorite #${m.id}!`);
               if (this.missionFailed) return;
               continue;
             }
-            if (m.y > 760) {
+            if (m.y > 750) {
               sfx.play('orb');
-              this.arcade.score += 45;
               this.arcade.meteorites.splice(i, 1);
+              this.meteorsResolvedCount++;
+              this.stars += 25;
+              this.updateHudUI();
             }
           }
 
-          // Update Collectible Orbs
+          // Update Collectible Data Orbs
           for (let i = this.arcade.orbs.length - 1; i >= 0; i--) {
             const o = this.arcade.orbs[i];
             o.y += o.vy;
-            if (Math.hypot(o.x - this.arcade.shipX, o.y - this.arcade.shipY) < 36) {
+            if (Math.hypot(o.x - this.arcade.shipX, o.y - this.arcade.shipY) < 40) {
               sfx.play('orb');
-              this.arcade.score += 75;
-              this.stars += 10;
+              this.stars += 15;
               this.updateHudUI();
               this.arcade.orbs.splice(i, 1);
               continue;
@@ -2140,10 +2511,9 @@
             if (o.y > 750) this.arcade.orbs.splice(i, 1);
           }
 
-          document.getElementById('arcadeScoreDigits').textContent = String(this.arcade.score).padStart(4, '0');
-
+          // Complete the Meteorite Dodge step automatically once all 3 or 4 meteorites are resolved!
           const step = this.currentStep();
-          if (step && step.type === 'asteroid_dodge' && this.arcade.score >= 1120) {
+          if (step && step.type === 'asteroid_dodge' && this.meteorsResolvedCount >= this.meteorQuota && this.arcade.meteorites.length === 0) {
             this.completeStep();
           }
         }
@@ -2162,19 +2532,6 @@
         ctx.fillStyle = '#030612';
         ctx.fillRect(0, 0, 1200, 720);
 
-        // Nebula Clouds
-        const neb1 = ctx.createRadialGradient(250, 180, 10, 250, 180, 320);
-        neb1.addColorStop(0, 'rgba(56, 189, 248, 0.11)');
-        neb1.addColorStop(1, 'transparent');
-        ctx.fillStyle = neb1;
-        ctx.fillRect(0, 0, 1200, 720);
-
-        const neb2 = ctx.createRadialGradient(920, 520, 10, 920, 520, 340);
-        neb2.addColorStop(0, 'rgba(168, 85, 247, 0.11)');
-        neb2.addColorStop(1, 'transparent');
-        ctx.fillStyle = neb2;
-        ctx.fillRect(0, 0, 1200, 720);
-
         // Twinkling Starfield
         this.arcade.stars.forEach(s => {
           ctx.fillStyle = s.hue;
@@ -2183,7 +2540,9 @@
           ctx.fill();
         });
 
-        if (this.viewMode === 'inside') {
+        if (this.viewMode === 'lobby') {
+          this.renderDropshipLobby(ctx);
+        } else if (this.viewMode === 'inside') {
           this.renderDetailedSpacecraftInterior(ctx);
         } else if (this.viewMode === 'outside') {
           this.renderOutsideRocketSpace(ctx);
@@ -2195,191 +2554,439 @@
       },
 
       /* ===================================================================
-         RENDER 1: HYPER-DETAILED SPACECRAFT INTERIOR + ORIGINAL ASTRONAUT
+         RENDER 0: DROPSHIP WAITING ROOM LOBBY (Matches image_2f467e.jpg!)
       =================================================================== */
-      renderDetailedSpacecraftInterior(ctx) {
+      renderDropshipLobby(ctx) {
         ctx.save();
-        // Outer Multi-Layered Titanium Hull with Rivets & Bulkhead Ribbing
-        ctx.fillStyle = '#1e293b';
-        ctx.strokeStyle = '#64748b';
-        ctx.lineWidth = 10;
+
+        // Outer Dropship Hull Wings & Rear Thruster Pods visible in space
+        ctx.fillStyle = '#334155';
         ctx.beginPath();
-        ctx.moveTo(60, 230);
-        ctx.lineTo(205, 70);
-        ctx.lineTo(860, 60);
-        ctx.lineTo(1010, 190);
-        ctx.lineTo(1145, 250);
-        ctx.lineTo(1145, 470);
-        ctx.lineTo(1010, 530);
-        ctx.lineTo(860, 660);
-        ctx.lineTo(205, 650);
-        ctx.lineTo(60, 490);
+        ctx.moveTo(920, 220); ctx.lineTo(1035, 310); ctx.lineTo(920, 340); ctx.closePath();
+        ctx.moveTo(280, 220); ctx.lineTo(165, 310);  ctx.lineTo(280, 340); ctx.closePath();
+        ctx.fill();
+
+        // Main Dropship Cabin Shell (Curved top, metallic bulkheads, angled bottom corners)
+        ctx.fillStyle = '#475569';
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 14;
+        ctx.beginPath();
+        ctx.moveTo(270, 150);
+        ctx.quadraticCurveTo(600, 75, 930, 150);
+        ctx.lineTo(930, 585);
+        ctx.lineTo(880, 640);
+        ctx.lineTo(320, 640);
+        ctx.lineTo(270, 585);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
 
-        // Rear 4 Ion/Hypergolic Engine Bells with Animated Plasma Plumes
-        [140, 260, 440, 560].forEach(ny => {
+        // Back Bulkhead Wall Panels (Upper Wall with Vertical Ribbing)
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(285, 130, 630, 145);
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(285, 130, 185, 145);
+        ctx.strokeRect(730, 130, 185, 145);
+
+        // Central Blast Airlock Door at Top Center (Matches image_2f467e.jpg)
+        ctx.fillStyle = '#334155';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.roundRect(515, 145, 170, 130, 22);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#64748b';
+        ctx.beginPath();
+        ctx.roundRect(532, 160, 136, 105, 14);
+        ctx.fill();
+        // Door Center Seam & Interlock Handle
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(600, 160); ctx.lineTo(600, 265);
+        ctx.stroke();
+        ctx.fillStyle = '#475569';
+        ctx.beginPath();
+        ctx.ellipse(600, 212, 12, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Row of Blue Cushioned Jump-Seats along Left & Right Slanted Walls
+        for (let i = 0; i < 5; i++) {
+          // Left seats
+          const lx = 300 + i * 34;
+          const ly = 250 - i * 8;
+          ctx.fillStyle = '#1e3a8a';
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(lx, ly, 28, 42, 8);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(lx + 4, ly + 6, 20, 14);
+
+          // Right seats
+          const rx = 735 + i * 34;
+          const ry = 218 + i * 8;
+          ctx.fillStyle = '#1e3a8a';
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, 28, 42, 8);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(rx + 4, ry + 6, 20, 14);
+        }
+
+        // Upper Textured Metal Grating Deck
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(285, 275, 630, 125);
+        ctx.strokeStyle = '#64748b';
+        ctx.lineWidth = 2;
+        for (let gx = 295; gx < 905; gx += 16) {
+          ctx.beginPath(); ctx.moveTo(gx, 280); ctx.lineTo(gx, 395); ctx.stroke();
+        }
+        // Center Ramp Walk Strip
+        ctx.fillStyle = '#64748b';
+        ctx.fillRect(545, 275, 110, 125);
+
+        // Lower Grid Deck with Yellow/Olive Industrial Hazard Framing (Matches image_2f467e.jpg)
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(285, 400, 630, 225);
+        ctx.strokeStyle = '#854d0e';
+        ctx.lineWidth = 5;
+        for (let x = 330; x <= 870; x += 90) {
+          ctx.beginPath(); ctx.moveTo(x, 402); ctx.lineTo(x, 622); ctx.stroke();
+        }
+        for (let y = 445; y <= 610; y += 55) {
+          ctx.beginPath(); ctx.moveTo(288, y); ctx.lineTo(912, y); ctx.stroke();
+        }
+
+        // 3 Isometric Green Military/Space Equipment Crates + Laptop Terminal
+        const drawGreenCrate = (cx, cy, w, h, hasLaptop) => {
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.fillStyle = '#365314';
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.roundRect(-w / 2, -h / 2, w, h, 8);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#4d7c0f';
+          ctx.fillRect(-w / 2 + 5, -h / 2 + 5, w - 10, 18);
+
+          if (hasLaptop) {
+            // Open Metallic Laptop with Glowing Green/Cyan Screen
+            ctx.fillStyle = '#e2e8f0';
+            ctx.beginPath();
+            ctx.roundRect(-22, -h / 2 - 22, 44, 28, 4);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#10b981';
+            ctx.fillRect(-17, -h / 2 - 18, 34, 19);
+            ctx.fillStyle = '#94a3b8';
+            ctx.beginPath();
+            ctx.moveTo(-26, -h / 2 + 6);
+            ctx.lineTo(26, -h / 2 + 6);
+            ctx.lineTo(32, -h / 2 + 18);
+            ctx.lineTo(-32, -h / 2 + 18);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#fde047';
+            ctx.font = 'bold 10px "JetBrains Mono", monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('💻 CUSTOMIZE [CLICK]', 0, -h / 2 - 30);
+          }
+          ctx.restore();
+        };
+
+        drawGreenCrate(415, 345, 76, 68, true);  // Top-left crate with Laptop
+        drawGreenCrate(715, 435, 105, 86, false); // Right large crate
+        drawGreenCrate(355, 515, 95, 82, false);  // Bottom-left crate
+
+        // Draw AI Crewmates in the Waiting Lobby
+        this.lobbyBots.forEach(b => {
+          this.drawExplorerAstronaut(ctx, b.x, b.y, 0.95, b.color, b.vx >= 0 ? 1 : -1, Date.now() / 220, false);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 11px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(b.name, b.x, b.y - 35);
+        });
+
+        // Draw Player Astronaut in Lobby
+        this.drawExplorerAstronaut(
+          ctx,
+          this.lobbyPlayer.x,
+          this.lobbyPlayer.y,
+          1.1,
+          this.suitColor,
+          this.lobbyPlayer.facing,
+          this.lobbyPlayer.walkFrame,
+          true
+        );
+
+        ctx.restore();
+      },
+
+      /* ===================================================================
+         RENDER 1: HYPER-DETAILED ARCHITECTURAL SPACECRAFT INTERIOR
+                   (Incorporates image_2f4316.png & image_2f42f7.jpg details!)
+      =================================================================== */
+      renderDetailedSpacecraftInterior(ctx) {
+        ctx.save();
+        // Outer Multi-Layered Titanium Hull with Rivets & Bulkhead Ribbing
+        ctx.fillStyle = '#0f172a';
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.moveTo(50, 200);
+        ctx.lineTo(205, 55);
+        ctx.lineTo(875, 50);
+        ctx.lineTo(1020, 180);
+        ctx.lineTo(1155, 220);
+        ctx.lineTo(1155, 490);
+        ctx.lineTo(1020, 535);
+        ctx.lineTo(875, 670);
+        ctx.lineTo(205, 660);
+        ctx.lineTo(50, 505);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Rear 4 Orbital Thruster Nozzles with Plasma Plumes
+        [135, 255, 445, 565].forEach(ny => {
           ctx.fillStyle = '#334155';
-          ctx.fillRect(24, ny, 38, 48);
+          ctx.fillRect(16, ny, 36, 46);
           ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
           ctx.beginPath();
-          ctx.moveTo(24, ny + 6);
-          ctx.lineTo(-4 - Math.random() * 18, ny + 24);
-          ctx.lineTo(24, ny + 42);
+          ctx.moveTo(16, ny + 6);
+          ctx.lineTo(-10 - Math.random() * 18, ny + 23);
+          ctx.lineTo(16, ny + 40);
           ctx.fill();
         });
 
-        // Walkable Corridors with Metallic Deck Grating & Exposed Floor Conduits
+        // Walkable Corridors with Bulkhead Side Walls, Doorway Airlock Frames & Sub-Floor Pipes
         SKELD_CORRIDORS.forEach(c => {
+          // Outer corridor wall trim
+          ctx.fillStyle = '#1e293b';
+          ctx.fillRect(c.x - 4, c.y - 4, c.w + 8, c.h + 8);
+          // Walkable deck floor
           ctx.fillStyle = '#334155';
           ctx.fillRect(c.x, c.y, c.w, c.h);
-          // Exposed Red & Cyan Sub-Floor Cable Pipes inside Corridors
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.moveTo(c.x + 6, c.y + 10);
-          ctx.lineTo(c.x + c.w - 6, c.y + 10);
-          ctx.stroke();
 
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-          ctx.beginPath();
-          ctx.moveTo(c.x + 6, c.y + c.h - 10);
-          ctx.lineTo(c.x + c.w - 6, c.y + c.h - 10);
-          ctx.stroke();
+          // Metallic Deck Grating Lines
+          ctx.strokeStyle = 'rgba(15, 23, 42, 0.45)';
+          ctx.lineWidth = 2;
+          for (let gx = c.x + 12; gx < c.x + c.w; gx += 20) {
+            ctx.beginPath(); ctx.moveTo(gx, c.y + 4); ctx.lineTo(gx, c.y + c.h - 4); ctx.stroke();
+          }
+
+          // Sub-Floor Red & Cyan Conduit Pipes
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.55)';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.moveTo(c.x + 4, c.y + 9); ctx.lineTo(c.x + c.w - 4, c.y + 9); ctx.stroke();
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.55)';
+          ctx.beginPath(); ctx.moveTo(c.x + 4, c.y + c.h - 9); ctx.lineTo(c.x + c.w - 4, c.y + c.h - 9); ctx.stroke();
         });
 
         const activeStep = this.currentStep();
         const targetRoomId = activeStep ? activeStep.room : null;
 
-        // Draw Detailed Rooms with 3D Top Wall Trim, Levers, Pipes & Machinery
+        // Draw Architectural Rooms with Thick Separating Bulkhead Walls & Reference Image Details
         SKELD_ROOMS.forEach(r => {
           const isTarget = r.id === targetRoomId;
           ctx.save();
 
+          // Thick Separating Room Bulkhead Wall Shadow
+          ctx.fillStyle = '#020617';
+          ctx.beginPath();
+          ctx.roundRect(r.x - 6, r.y - 6, r.w + 12, r.h + 12, 14);
+          ctx.fill();
+
           // Room Floor Base
           ctx.fillStyle = r.floorColor;
           ctx.beginPath();
-          ctx.roundRect(r.x, r.y, r.w, r.h, 12);
+          ctx.roundRect(r.x, r.y, r.w, r.h, 10);
           ctx.fill();
 
-          // Top 3D Bulkhead Wall Header Strip (gives depth like a real ship interior)
-          ctx.fillStyle = '#0f172a';
-          ctx.fillRect(r.x + 4, r.y + 4, r.w - 8, 28);
+          // Top Architectural Wall Header (44px tall so we can mount windows, red hatches & ceiling lights!)
+          ctx.fillStyle = '#0f2942';
+          ctx.fillRect(r.x + 3, r.y + 3, r.w - 6, 44);
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(r.x + 4, r.y + 47);
+          ctx.lineTo(r.x + r.w - 4, r.y + 47);
+          ctx.stroke();
 
-          // Wall-Mounted Levers, Gauges & Warning Stripes on Top Wall
-          for (let wx = r.x + 22; wx < r.x + r.w - 25; wx += 38) {
-            // Small wall panel box
-            ctx.fillStyle = '#334155';
-            ctx.fillRect(wx, r.y + 8, 18, 16);
-            // Red/Green indicator LEDs & lever handle
-            ctx.fillStyle = (wx + Math.floor(Date.now() / 400)) % 2 === 0 ? '#10b981' : '#f59e0b';
-            ctx.fillRect(wx + 3, r.y + 11, 4, 4);
-            ctx.strokeStyle = '#facc15';
-            ctx.lineWidth = 2;
+          // Ceiling Cyan Neon Light Fixtures (from image_2f42f7.jpg)
+          for (let lx = r.x + 36; lx < r.x + r.w - 30; lx += 75) {
+            ctx.fillStyle = '#0ea5e9';
             ctx.beginPath();
-            ctx.moveTo(wx + 13, r.y + 20);
-            ctx.lineTo(wx + 16, r.y + 10);
-            ctx.stroke();
+            ctx.ellipse(lx, r.y + 9, 16, 4, 0, 0, Math.PI * 2);
+            ctx.fill();
           }
 
-          // Room-Specific High-Detail Machinery
+          // Room-Specific Details Inspired by image_2f4316.png & image_2f42f7.jpg
           if (r.pattern === 'cafeteria') {
-            // 5 Illuminated Command Deck Tables with Hologram Charts
-            const tables = [
-              [r.x + 70, r.y + 80], [r.x + 210, r.y + 80],
-              [r.x + 140, r.y + 135],
-              [r.x + 70, r.y + 195], [r.x + 210, r.y + 195]
-            ];
-            tables.forEach(([tx, ty]) => {
-              ctx.fillStyle = '#0f766e';
-              ctx.beginPath(); ctx.arc(tx, ty, 24, 0, Math.PI * 2); ctx.fill();
-              ctx.strokeStyle = '#2dd4bf'; ctx.lineWidth = 2.5; ctx.stroke();
-              ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
-              ctx.beginPath(); ctx.arc(tx, ty, 11, 0, Math.PI * 2); ctx.fill();
-            });
-          } else if (r.pattern === 'reactor') {
-            // Glowing Plasma Core + Spinning Gyroscope Flywheel Rings
-            const rot = Date.now() / 300;
-            ctx.save();
-            ctx.translate(r.x + 55, r.y + 115);
-            ctx.rotate(rot);
-            ctx.strokeStyle = '#c084fc';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(-24, -24, 48, 48);
-            ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-          } else if (r.pattern === 'engine') {
-            // Copper Cryogenic Coils, Pipes & Pressure Pistons
-            ctx.fillStyle = '#c2410c';
-            ctx.fillRect(r.x + 18, r.y + 45, 70, 58);
-            ctx.strokeStyle = '#fdba74';
+            // Hexagonal Panoramic Space Window showing Ringed Planet (from image_2f4316.png!)
+            const wx = r.x + r.w / 2;
+            const wy = r.y + 26;
+            ctx.fillStyle = '#050b1a';
+            ctx.strokeStyle = '#7dd3fc';
             ctx.lineWidth = 3;
-            for (let py = r.y + 53; py < r.y + 98; py += 12) {
-              ctx.beginPath();
-              ctx.moveTo(r.x + 20, py);
-              ctx.lineTo(r.x + 86, py);
-              ctx.stroke();
-            }
-          } else if (r.pattern === 'medbay') {
-            // Bio-Scanner Bed + LiOH Cylindrical Scrubber Tanks & O2 Pipes
+            ctx.beginPath();
+            ctx.moveTo(wx - 65, wy - 16);
+            ctx.lineTo(wx + 65, wy - 16);
+            ctx.lineTo(wx + 82, wy + 2);
+            ctx.lineTo(wx + 65, wy + 18);
+            ctx.lineTo(wx - 65, wy + 18);
+            ctx.lineTo(wx - 82, wy + 2);
+            ctx.closePath();
+            ctx.fill(); ctx.stroke();
+
+            // Ringed Planet visible through the Hexagonal Window
+            ctx.fillStyle = '#a855f7';
+            ctx.beginPath(); ctx.arc(wx - 22, wy + 2, 11, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#cbd5e1'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.ellipse(wx - 22, wy + 2, 22, 5, -0.2, 0, Math.PI * 2); ctx.stroke();
+
+            // 2 Circular Porthole Windows on either side (from image_2f4316.png)
+            [r.x + 34, r.x + r.w - 34].forEach(px => {
+              ctx.fillStyle = '#38bdf8';
+              ctx.strokeStyle = '#bae6fd';
+              ctx.lineWidth = 3;
+              ctx.beginPath(); ctx.arc(px, wy + 2, 12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            });
+
+            // Glowing Cyan Angled Holographic Command Consoles & White/Blue Pedestal Chairs
+            [-68, 68].forEach(offset => {
+              ctx.fillStyle = '#0284c7';
+              ctx.strokeStyle = '#67e8f9';
+              ctx.lineWidth = 2;
+              ctx.fillRect(wx + offset - 32, r.y + 82, 64, 28);
+              ctx.strokeRect(wx + offset - 32, r.y + 82, 64, 28);
+              // White & Blue Pedestal Chair
+              ctx.fillStyle = '#f8fafc';
+              ctx.beginPath(); ctx.arc(wx + offset, r.y + 128, 12, 0, Math.PI * 2); ctx.fill();
+              ctx.fillStyle = '#0284c7';
+              ctx.beginPath(); ctx.arc(wx + offset, r.y + 126, 8, 0, Math.PI * 2); ctx.fill();
+            });
+          } else if (r.pattern === 'admin' || r.pattern === 'navigation') {
+            // Spoked Circular Observation Window + Orange Robot Co-Pilot Unit + Red Wheel-Hatch Door (from image_2f42f7.jpg!)
+            const wx = r.x + r.w / 2;
+            const wy = r.y + 26;
+            ctx.fillStyle = '#090d24';
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(wx, wy + 2, 20, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            // Window Spokes
+            ctx.beginPath();
+            ctx.moveTo(wx - 20, wy + 2); ctx.lineTo(wx + 20, wy + 2);
+            ctx.moveTo(wx, wy - 18);     ctx.lineTo(wx, wy + 22);
+            ctx.stroke();
+
+            // Red Bulkhead Door with Circular Wheel Lock on Left Wall (from image_2f42f7.jpg)
+            ctx.fillStyle = '#be123c';
+            ctx.strokeStyle = '#4c0519';
+            ctx.lineWidth = 2;
+            ctx.fillRect(r.x + 10, r.y + 10, 22, 35);
+            ctx.strokeStyle = '#fda4af';
+            ctx.beginPath(); ctx.arc(r.x + 21, r.y + 28, 6, 0, Math.PI * 2); ctx.stroke();
+
+            // Dual Cyan Monitor Desk + Cute Orange Robot Head Co-Pilot (from image_2f42f7.jpg!)
+            ctx.fillStyle = '#d97706';
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.roundRect(wx - 11, r.y + 54, 22, 16, 4); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(wx - 7, r.y + 58, 5, 4);
+            ctx.fillRect(wx + 2, r.y + 58, 5, 4);
+
+            // Dual Glowing Cyan Monitors below Robot
+            ctx.fillStyle = '#22d3ee';
+            ctx.fillRect(wx - 34, r.y + 72, 28, 18);
+            ctx.fillRect(wx + 6,  r.y + 72, 28, 18);
+
+            // Orange Swivel Pilot Chair on Right
+            ctx.fillStyle = '#ea580c';
+            ctx.beginPath(); ctx.roundRect(r.x + r.w - 38, r.y + 92, 22, 28, 5); ctx.fill();
+          } else if (r.pattern === 'reactor' || r.pattern === 'engine') {
+            // Glowing Blue Circular Turbine Fan Device on Tripod Legs (from image_2f42f7.jpg bottom-left!)
+            const fx = r.x + 48;
+            const fy = r.y + 105;
             ctx.fillStyle = '#0284c7';
-            ctx.fillRect(r.x + 16, r.y + 48, 38, 65);
+            ctx.strokeStyle = '#d97706';
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.arc(fx, fy, 22, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            // Spinning Turbine Blades
+            const rot = Date.now() / 220;
+            ctx.save();
+            ctx.translate(fx, fy);
+            ctx.rotate(rot);
+            ctx.strokeStyle = '#e0f2fe';
+            ctx.lineWidth = 2;
+            for (let a = 0; a < 6; a++) {
+              ctx.rotate(Math.PI / 3);
+              ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(18, 0); ctx.stroke();
+            }
+            ctx.restore();
+          } else if (r.pattern === 'medbay') {
+            // Diagnostic Bio-Scanner Bed & Dual LiOH Scrubber Cylinders
+            ctx.fillStyle = '#0284c7';
+            ctx.strokeStyle = '#7dd3fc';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(r.x + 16, r.y + 62, 42, 72, 8); ctx.fill(); ctx.stroke();
             ctx.fillStyle = '#10b981';
-            ctx.beginPath(); ctx.arc(r.x + 35, r.y + 138, 14, 0, Math.PI * 2); ctx.fill();
-            ctx.beginPath(); ctx.arc(r.x + 70, r.y + 138, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(r.x + 38, r.y + 155, 14, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(r.x + 74, r.y + 155, 14, 0, Math.PI * 2); ctx.fill();
           } else if (r.pattern === 'electrical') {
-            // Multi-Colored Snaking Floor Wires & KITO Switchboard Rack
+            // KITO Breaker Cabinet & Snaking Multi-Color Floor Conduits
             const colors = ['#facc15', '#ef4444', '#38bdf8'];
             colors.forEach((col, i) => {
               ctx.strokeStyle = col;
               ctx.lineWidth = 3;
               ctx.beginPath();
-              ctx.moveTo(r.x + 20 + i * 18, r.y + 42);
-              ctx.bezierCurveTo(r.x + 40, r.y + 95, r.x + 90, r.y + 95, r.x + 115 + i * 10, r.y + 155);
+              ctx.moveTo(r.x + 22 + i * 18, r.y + 52);
+              ctx.bezierCurveTo(r.x + 40, r.y + 105, r.x + 95, r.y + 105, r.x + 120 + i * 10, r.y + 170);
               ctx.stroke();
             });
           } else if (r.pattern === 'storage') {
-            // Strapped NASA Payload Crates & Yellow Hazard Bay Striping
-            ctx.fillStyle = '#451a03';
-            ctx.fillRect(r.x + 55, r.y + 68, 75, 90);
+            // Locked Cargo Crates & Hazard Perimeter
+            ctx.fillStyle = '#365314';
             ctx.strokeStyle = '#facc15';
             ctx.lineWidth = 2.5;
-            ctx.strokeRect(r.x + 55, r.y + 68, 75, 90);
-          } else if (r.pattern === 'navigation') {
-            // Armored Cockpit Windows & Dual Pilot chairs
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 4;
-            ctx.beginPath();
-            ctx.moveTo(r.x + 115, r.y + 40);
-            ctx.lineTo(r.x + 145, r.y + 110);
-            ctx.lineTo(r.x + 115, r.y + 185);
-            ctx.stroke();
+            ctx.fillRect(r.x + 25, r.y + 72, 65, 65);
+            ctx.strokeRect(r.x + 25, r.y + 72, 65, 65);
           }
 
-          // Outer Room Bulkhead Frame
-          ctx.strokeStyle = isTarget ? '#facc15' : '#0f172a';
+          // Thick Architectural Bulkhead Frame Separating Each Section
+          ctx.strokeStyle = isTarget ? '#facc15' : '#475569';
           ctx.lineWidth = isTarget ? 5 : 4;
           ctx.beginPath();
-          ctx.roundRect(r.x, r.y, r.w, r.h, 12);
+          ctx.roundRect(r.x, r.y, r.w, r.h, 10);
           ctx.stroke();
 
-          // Room Title Label
-          ctx.fillStyle = isTarget ? '#fde047' : '#e2e8f0';
-          ctx.font = 'bold 10px Orbitron, sans-serif';
-          ctx.fillText(r.name, r.x + 12, r.y + 21);
+          // Glowing Airlock Doorway Threshold Bars where Corridors Connect
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillRect(r.x + r.w / 2 - 18, r.y + r.h - 3, 36, 5);
 
-          // Interactive Console Station
+          // Room Name Banner
+          ctx.fillStyle = isTarget ? '#fde047' : '#bae6fd';
+          ctx.font = 'bold 10px Orbitron, sans-serif';
+          ctx.fillText(r.name, r.x + 12, r.y + 62);
+
+          // Interactive Console Button in Every Room (All buttons work!)
           ctx.fillStyle = isTarget ? '#facc15' : '#38bdf8';
           ctx.beginPath();
-          ctx.arc(r.consoleX, r.consoleY, isTarget ? 15 : 10, 0, Math.PI * 2);
+          ctx.arc(r.consoleX, r.consoleY, isTarget ? 15 : 11, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2.5;
           ctx.stroke();
 
           if (isTarget) {
-            const pulse = 21 + Math.sin(Date.now() / 140) * 6;
+            const pulse = 22 + Math.sin(Date.now() / 140) * 6;
             ctx.strokeStyle = '#facc15';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -2401,7 +3008,7 @@
           if (targetRm) {
             ctx.save();
             ctx.setLineDash([8, 6]);
-            ctx.strokeStyle = 'rgba(250, 204, 21, 0.75)';
+            ctx.strokeStyle = 'rgba(250, 204, 21, 0.78)';
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(this.player.x, this.player.y);
@@ -2411,7 +3018,7 @@
           }
         }
 
-        // Draw Original Copyright-Safe Articulated NASA/ISRO EVA Explorer Character
+        // Draw Player Astronaut
         this.drawExplorerAstronaut(
           ctx,
           this.player.x,
@@ -2530,64 +3137,48 @@
       },
 
       /* ===================================================================
-         RENDER 2: OUTSIDE MULTI-STAGE ROCKETSHIP & BLAZING METEORITES
+         RENDER 2: REALISTIC NASA ORION / ISRO GAGANYAAN SPACECRAFT IN OUTSIDE VIEW
       =================================================================== */
       renderOutsideRocketSpace(ctx) {
-        // Distant Ringed Exoplanet & Spiral Galaxy in Deep Space Background
+        // Deep-Space Ringed Planet, Moon & Nebula Backdrop
         ctx.save();
-        ctx.translate(180, 155);
-        ctx.fillStyle = '#312e81';
-        ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
-        ctx.lineWidth = 6;
-        ctx.beginPath(); ctx.ellipse(0, 0, 78, 18, -0.3, 0, Math.PI * 2); ctx.stroke();
+        ctx.translate(210, 165);
+        const planG = ctx.createRadialGradient(-12, -12, 8, 0, 0, 52);
+        planG.addColorStop(0, '#93c5fd');
+        planG.addColorStop(0.5, '#1d4ed8');
+        planG.addColorStop(1, '#0f172a');
+        ctx.fillStyle = planG;
+        ctx.beginPath(); ctx.arc(0, 0, 52, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(125, 211, 252, 0.45)';
+        ctx.lineWidth = 8;
+        ctx.beginPath(); ctx.ellipse(0, 0, 96, 22, -0.28, 0, Math.PI * 2); ctx.stroke();
         ctx.restore();
 
-        // 1. Draw Minor Grey Space Rocks
-        this.arcade.rocks.forEach(rk => {
-          ctx.save();
-          ctx.translate(rk.x, rk.y);
-          ctx.rotate(rk.rot);
-          ctx.fillStyle = '#64748b';
-          ctx.strokeStyle = '#1e293b';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(0, 0, rk.r, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          ctx.fillStyle = '#475569';
-          ctx.beginPath(); ctx.arc(-5, -4, rk.r * 0.35, 0, Math.PI * 2); ctx.fill();
-          ctx.restore();
-        });
-
-        // 2. Draw BLAZING FIREBALL METEORITES with Crimson Trajectory Laser & Flame Tail
+        // Draw Tracked 3-to-4 Blazing Meteorites with Trajectory Warning Line
         this.arcade.meteorites.forEach(m => {
-          // Crimson Trajectory Warning Line ahead of the meteorite
           ctx.save();
           ctx.setLineDash([10, 8]);
-          ctx.strokeStyle = 'rgba(239, 68, 68, 0.55)';
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.moveTo(m.x, m.y);
-          ctx.lineTo(m.x + m.vx * 80, 720);
+          ctx.lineTo(m.x + m.vx * 85, 720);
           ctx.stroke();
           ctx.restore();
 
           ctx.save();
           ctx.translate(m.x, m.y);
-          // Roaring Plasma Fire Plume Tail behind Meteorite
-          const tailGrad = ctx.createLinearGradient(0, 0, 0, -95);
+          const tailGrad = ctx.createLinearGradient(0, 0, 0, -100);
           tailGrad.addColorStop(0, 'rgba(249, 115, 22, 0.95)');
           tailGrad.addColorStop(0.5, 'rgba(239, 68, 68, 0.65)');
           tailGrad.addColorStop(1, 'transparent');
           ctx.fillStyle = tailGrad;
           ctx.beginPath();
           ctx.moveTo(-m.r * 0.9, 0);
-          ctx.lineTo(0, -95 - Math.random() * 25);
+          ctx.lineTo(0, -105 - Math.random() * 20);
           ctx.lineTo(m.r * 0.9, 0);
           ctx.fill();
 
-          // Glowing Molten Meteorite Core
           ctx.rotate(m.rot);
           ctx.fillStyle = '#7f1d1d';
           ctx.strokeStyle = '#f97316';
@@ -2597,111 +3188,140 @@
           ctx.fill();
           ctx.stroke();
 
-          // Molten Magma Fissures
           ctx.fillStyle = '#fef08a';
           ctx.beginPath(); ctx.arc(-7, -5, 6, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(8, 6, 5, 0, Math.PI * 2); ctx.fill();
           ctx.restore();
+
+          // Tag Meteorite Number (#1 of 3, etc.)
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 12px "JetBrains Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(`METEORITE #${m.id} OF ${this.meteorQuota}`, m.x, m.y - m.r - 12);
+          ctx.textAlign = 'left';
         });
 
-        // 3. Draw Collectible Golden/Cyan Telemetry Orbs
+        // Draw Collectible Data Orbs
         this.arcade.orbs.forEach(o => {
           ctx.fillStyle = o.color;
           ctx.beginPath();
-          ctx.arc(o.x, o.y, 10, 0, Math.PI * 2);
+          ctx.arc(o.x, o.y, 11, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
           ctx.lineWidth = 2;
           ctx.stroke();
         });
 
-        // 4. Draw Detailed Multi-Stage NASA/ISRO ROCKETSHIP (Replaces simple arrow!)
+        // Draw Realistic NASA Orion / ISRO Gaganyaan Spacecraft (Service Module + X-Wing Solar Arrays + Conical Crew Capsule)
         const sx = this.arcade.shipX;
         const sy = this.arcade.shipY;
         ctx.save();
         ctx.translate(sx, sy);
 
-        // Twin Booster & Core Engine Exhaust Plumes
-        const flameH = 42 + Math.random() * 18;
-        const plumeGrad = ctx.createLinearGradient(0, 34, 0, 34 + flameH);
+        // 1. Main Orbital Maneuvering Engine (OME) Bell & Blue-White Ion/Hypergolic Plasma Plume
+        const flameH = 48 + Math.random() * 20;
+        const plumeGrad = ctx.createLinearGradient(0, 38, 0, 38 + flameH);
         plumeGrad.addColorStop(0, '#ffffff');
-        plumeGrad.addColorStop(0.35, '#38bdf8');
-        plumeGrad.addColorStop(0.75, '#f97316');
+        plumeGrad.addColorStop(0.3, '#38bdf8');
+        plumeGrad.addColorStop(0.7, '#3b82f6');
         plumeGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = plumeGrad;
         ctx.beginPath();
-        ctx.moveTo(-18, 34);
-        ctx.lineTo(0, 34 + flameH);
-        ctx.lineTo(18, 34);
+        ctx.moveTo(-16, 38);
+        ctx.lineTo(0, 38 + flameH);
+        ctx.lineTo(16, 38);
         ctx.fill();
 
-        // Deployable Blue Solar Array Wings on Sides
-        ctx.fillStyle = '#1d4ed8';
-        ctx.strokeStyle = '#7dd3fc';
+        // Dark Titanium Engine Bell Nozzle
+        ctx.fillStyle = '#334155';
+        ctx.strokeStyle = '#94a3b8';
         ctx.lineWidth = 2;
-        ctx.fillRect(-52, -6, 30, 14);
-        ctx.strokeRect(-52, -6, 30, 14);
-        ctx.fillRect(22, -6, 30, 14);
-        ctx.strokeRect(22, -6, 30, 14);
-
-        // Left & Right Strap-On Solid Rocket Boosters (SRBs)
-        [-22, 12].forEach(bx => {
-          ctx.fillStyle = '#cbd5e1';
-          ctx.strokeStyle = '#334155';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.roundRect(bx, -14, 10, 44, 4);
-          ctx.fill();
-          ctx.stroke();
-          // Orange Booster Nose Cap
-          ctx.fillStyle = '#f97316';
-          ctx.beginPath();
-          ctx.moveTo(bx, -14);
-          ctx.lineTo(bx + 5, -24);
-          ctx.lineTo(bx + 10, -14);
-          ctx.fill();
-        });
-
-        // Swept Aerodynamic Rear Stabilizer Fins
-        ctx.fillStyle = '#ef4444';
         ctx.beginPath();
-        ctx.moveTo(-14, 12); ctx.lineTo(-30, 34); ctx.lineTo(-14, 30); ctx.closePath();
-        ctx.moveTo(14, 12);  ctx.lineTo(30, 34);  ctx.lineTo(14, 30);  ctx.closePath();
-        ctx.fill();
+        ctx.moveTo(-10, 24);
+        ctx.lineTo(-18, 40);
+        ctx.lineTo(18, 40);
+        ctx.lineTo(10, 24);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
 
-        // Primary Cylindrical Rocket Fuselage Body
-        ctx.fillStyle = '#f8fafc';
+        // 2. Four Realistic X-Wing Cross-Hatched Solar Array Wings (Like NASA Orion ESM)
+        const drawSolarWing = (angle, side) => {
+          ctx.save();
+          ctx.translate(side * 22, 6);
+          ctx.rotate(angle);
+          // Strut arm
+          ctx.strokeStyle = '#cbd5e1';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(side * 14, 0); ctx.stroke();
+          // Solar Panel Array
+          const wx = side > 0 ? 12 : -76;
+          ctx.fillStyle = '#1e3a8a';
+          ctx.strokeStyle = '#38bdf8';
+          ctx.lineWidth = 2;
+          ctx.fillRect(wx, -9, 64, 18);
+          ctx.strokeRect(wx, -9, 64, 18);
+          // Photovoltaic Cell Grid Lines
+          ctx.strokeStyle = 'rgba(125, 211, 252, 0.45)';
+          ctx.lineWidth = 1;
+          for (let gx = wx + 12; gx < wx + 64; gx += 12) {
+            ctx.beginPath(); ctx.moveTo(gx, -9); ctx.lineTo(gx, 9); ctx.stroke();
+          }
+          ctx.beginPath(); ctx.moveTo(wx, 0); ctx.lineTo(wx + 64, 0); ctx.stroke();
+          ctx.restore();
+        };
+        drawSolarWing(-0.28, -1);
+        drawSolarWing(0.28, -1);
+        drawSolarWing(0.28, 1);
+        drawSolarWing(-0.28, 1);
+
+        // 3. Cylindrical Service Module (Gold Kapton Multi-Layer Insulation + White Radiator Panels)
+        ctx.fillStyle = '#cbd5e1';
         ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.roundRect(-15, -30, 30, 62, 8);
-        ctx.fill();
-        ctx.stroke();
+        ctx.roundRect(-24, -6, 48, 32, 4);
+        ctx.fill(); ctx.stroke();
+        // Gold Foil Thermal Belt
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(-22, 12, 44, 12);
+        // Vertical Radiator Louvers
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1.5;
+        [-12, 0, 12].forEach(rx => {
+          ctx.beginPath(); ctx.moveTo(rx, -4); ctx.lineTo(rx, 11); ctx.stroke();
+        });
 
-        // Black & Gold Interstage Roll Pattern Band
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-14, 4, 28, 9);
-        ctx.fillStyle = '#f59e0b';
-        ctx.fillRect(-14, -20, 28, 5);
-
-        // Conical Payload Fairing Nose Cone
-        ctx.fillStyle = '#ef4444';
-        ctx.beginPath();
-        ctx.moveTo(-15, -28);
-        ctx.quadraticCurveTo(0, -58, 0, -58);
-        ctx.quadraticCurveTo(0, -58, 15, -28);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-
-        // Illuminated Circular Crew Porthole Window
-        ctx.fillStyle = '#38bdf8';
+        // 4. Conical Pressurized Crew Module (Orion / Gaganyaan Capsule Geometry)
+        const capGrad = ctx.createLinearGradient(-26, -38, 26, -6);
+        capGrad.addColorStop(0, '#f8fafc');
+        capGrad.addColorStop(0.6, '#cbd5e1');
+        capGrad.addColorStop(1, '#64748b');
+        ctx.fillStyle = capGrad;
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2.5;
         ctx.beginPath();
-        ctx.arc(0, -8, 7, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
+        ctx.moveTo(-26, -6);
+        ctx.lineTo(-14, -38);
+        ctx.lineTo(14, -38);
+        ctx.lineTo(26, -6);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+
+        // Forward Docking Ring & NASA/ISRO Sensor Nose
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(-10, -46, 20, 8);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(-10, -46, 20, 8);
+
+        // Forward Look-Out Cockpit Windows & RCS Thruster Quads
+        ctx.fillStyle = '#0ea5e9';
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(-12, -26, 9, 7, 2);
+        ctx.roundRect(3, -26, 9, 7, 2);
+        ctx.fill(); ctx.stroke();
 
         ctx.restore();
       },
@@ -2935,6 +3555,8 @@
       }
     };
 
+    window.game = game;
+    window.sfx = sfx;
     window.onload = () => game.init();
   </script>
 </body>
