@@ -32,6 +32,7 @@ input[type=text]{background:#0006;border:1px solid var(--a);color:inherit;border
 <div id="alert" class="hide"></div>
 <div id="pad" class="hide"><div><button onpointerdown="K.pl=1" onpointerup="K.pl=0" onpointerleave="K.pl=0">◀</button><button onpointerdown="K.pu=1" onpointerup="K.pu=0" onpointerleave="K.pu=0">▲</button><button onpointerdown="K.pd=1" onpointerup="K.pd=0" onpointerleave="K.pd=0">▼</button><button onpointerdown="K.pr=1" onpointerup="K.pr=0" onpointerleave="K.pr=0">▶</button></div><div><button class="go" onclick="act()" style="width:auto">CONSOLE [E]</button></div></div>
 <div id="fb" class="panel hide"></div>
+<button id="mt" onclick="SX.tg()" title="Sound on/off [M]" style="position:absolute;right:6px;top:50%;z-index:6;width:42px;height:42px;padding:0;font-size:18px">🔊</button>
 <div id="lobby" class="o"></div>
 <div id="mod" class="o hide"><div class="panel" id="mc" style="max-width:640px;width:100%"></div></div>
 </div>
@@ -133,7 +134,7 @@ function bg(){x.fillStyle='#030612';x.fillRect(0,0,W,H);const sp=G.mode=='out'?2
 function drawLobby(){x.fillStyle='#334155';x.fillRect(0,0,W,H);x.fillStyle='#475569';x.fillRect(0,0,W,250);for(let i=0;i<5;i++){rr(60+i*60,170+i*-6,44,60,8,'#1e3a8a','#0f172a');rr(64+i*60,176+i*-6,36,16,4,'#38bdf8')}
 rr(330,40,160,150,18,'#334155','#0f172a');x.beginPath();x.moveTo(410,48);x.lineTo(410,182);x.stroke();x.strokeStyle='#854d0e';x.lineWidth=5;for(let i=0;i<10;i++){x.beginPath();x.moveTo(i*100,250);x.lineTo(i*100,H);x.stroke()}x.beginPath();x.moveTo(0,400);x.lineTo(W,400);x.stroke();
 rr(80,400,130,100,8,'#365314','#0f172a');rr(560,330,120,100,8,'#365314','#0f172a');
-const t=Date.now()/220;A(200+Math.sin(t/9)*50,330,1,Math.cos(t/9)>0?1:-1,t,'anvi',3);A(540,300,1,-1,t*.8,'bob',1);A(260,440,2.8,1,0,S.name,S.col);
+const t=Date.now()/220;A(200+Math.sin(t/9)*50,330,1,Math.cos(t/9)>0?1:-1,t,'ingy',3);A(540,300,1,-1,t*.8,'bob',1);A(260,440,2.8,1,0,S.name,S.col);
 x.font='bold 13px Orbitron,sans-serif';x.fillStyle='#fde047';x.fillText('Dropship boarding lobby',20,520)}
 function room(id,r){const[rx,ry,rw,rh,nm,fc]=r,cx=rx+rw/2,top=ry<200,tg=cur()&&cur().r==id&&cur().k!='met',hy=top?ry+3:ry+rh-37,dy=top?ry+rh:ry,fy=top?ry:ry+rh,cy=C[id][1];
 rr(rx-6,ry-6,rw+12,rh+12,12,'#020617');rr(rx,ry,rw,rh,8,fc);x.strokeStyle='#ffffff12';x.lineWidth=1;for(let g=rx+20;g<rx+rw;g+=20){x.beginPath();x.moveTo(g,ry);x.lineTo(g,ry+rh);x.stroke()}
@@ -189,5 +190,43 @@ if(s&&s.k=='met'){const q=G.ms;$('alert').classList.add('hide');if(q.sp<3&&!G.me
 for(let i=G.met.length-1;i>=0;i--){const e=G.met[i];e.y+=e.vy;e.x+=e.vx;e.r2+=.05;if(Math.hypot(e.x-G.sx,e.y-G.sy)<e.r+26){G.met.splice(i,1);q.rs++;hit('Meteoroid '+e.id+' struck the hull.');if(G.mode=='fail')return;if(q.rs>=3)metDone()}else if(e.y>H+60){G.met.splice(i,1);q.rs++;b(900,.15,'sine');if(q.rs>=3)metDone()}}}}
 }
 function metDone(){G.met=[];$('alert').classList.add('hide');tst('All 3 meteoroids cleared!');G.mode='in';sc()}
+/* ---------- SOUND FX ---------- */
+const SX={on:true,vol:.8,ctx:null,hg:null,lw:0,tk:0,
+c(){try{if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();if(this.ctx.state=='suspended')this.ctx.resume();return this.ctx}catch(e){return null}},
+t(f,d=.15,ty='sine',v=.08,to,dl=0){if(!this.on)return;const a=this.c();if(!a)return;const o=a.createOscillator(),g=a.createGain(),n=a.currentTime+dl;o.type=ty;o.frequency.setValueAtTime(f,n);if(to)o.frequency.exponentialRampToValueAtTime(to,n+d);g.gain.setValueAtTime(v*this.vol,n);g.gain.exponentialRampToValueAtTime(.0008,n+d);o.connect(g);g.connect(a.destination);o.start(n);o.stop(n+d+.02)},
+n(d=.4,fq=900,v=.15,dl=0){if(!this.on)return;const a=this.c();if(!a)return;const L=Math.floor(a.sampleRate*d),bf=a.createBuffer(1,L,a.sampleRate),D=bf.getChannelData(0);for(let i=0;i<L;i++)D[i]=Math.random()*2-1;const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain(),t0=a.currentTime+dl;s.buffer=bf;f.type='lowpass';f.frequency.setValueAtTime(fq,t0);f.frequency.exponentialRampToValueAtTime(80,t0+d);g.gain.setValueAtTime(v*this.vol,t0);g.gain.exponentialRampToValueAtTime(.0008,t0+d);s.connect(f);f.connect(g);g.connect(a.destination);s.start(t0)},
+q(arr,gap=.1,ty='triangle',v=.09){arr.forEach((f,i)=>this.t(f,.24,ty,v,0,i*gap))},
+click(){this.t(1300,.04,'square',.04);this.t(850,.05,'square',.04,0,.03)},
+siren(){this.t(520,.55,'sawtooth',.07,1000);this.t(1000,.55,'sawtooth',.07,520,.55)},
+boom(){this.n(.7,1400,.3);this.t(130,.6,'sawtooth',.14,30)},
+foot(){this.n(.07,500,.08)},
+whoosh(){this.n(.45,2800,.12);this.t(180,.4,'sine',.05,900)},
+win(){this.q([523,659,784,1047],.09)},
+fanfare(){this.q([392,523,659,784,659,784,1047],.13,'triangle',.1)},
+lose(){this.q([440,370,311,247,185],.2,'sawtooth',.08)},
+tg(){this.on=!this.on;$('mt').textContent=this.on?'🔊':'🔇';if(this.on)this.click()}};
+function wrap(n,f){const o=window[n];window[n]=function(){const r=o.apply(this,arguments);try{f.apply(null,arguments)}catch(e){}return r}}
+const _b=b;window.b=function(){if(SX.on)_b.apply(null,arguments)};
+wrap('start',()=>{SX.n(1.3,350,.22);SX.t(60,1.3,'sawtooth',.1,150);SX.q([330,440,660],.12)});
+wrap('vw',()=>SX.whoosh());
+wrap('sc',()=>SX.win());
+wrap('ovr',()=>SX.t(300,.35,'square',.08,1000));
+wrap('act',()=>{if(!$('mod').classList.contains('hide'))SX.q([660,990],.07,'square',.06)});
+wrap('tst',()=>SX.t(300,.14,'square',.06,180));
+wrap('hit',()=>{SX.boom();if(G.mode=='fail')setTimeout(()=>SX.lose(),500)});
+wrap('fin',()=>{SX.fanfare();if(G.mi==2)setTimeout(()=>SX.t(300,.8,'sine',.06,1200),700)});
+wrap('endm',()=>SX.win());
+wrap('say',w=>{if(w!='You:'){SX.t(400+Math.random()*300,.1,'sine',.07,900);SX.t(700+Math.random()*400,.1,'sine',.06,300,.1);SX.t(500,.12,'triangle',.05,950,.2)}});
+wrap('ch',()=>SX.t(1000,.05,'square',.05));
+wrap('fa',k=>{if(k=='f')SX.q([659,880,1175,1568],.12);if(k=='r'){SX.t(90,.5,'sawtooth',.07,60);SX.n(.5,400,.06)}if(k=='d'){[0,.2,.4,.6].forEach(d=>{SX.t(120,.12,'square',.08,60,d);SX.t(660+d*400,.1,'triangle',.06,0,d+.1)})}if(k=='o')SX.t(250,1.2,'sine',.06,900);if(k=='s')SX.q([400,500,640,800,1000],.1,'sine',.07)});
+wrap('tu',v=>{SX.t(300+(+v-1100)*.6,.05,'sine',.04);if(!$('tb').disabled&&SX.lw!=1){SX.lw=1;SX.q([880,1175],.08)}if($('tb').disabled)SX.lw=0});
+addEventListener('pointerdown',e=>{SX.c();if(e.target.closest&&e.target.closest('button'))SX.click()},true);
+addEventListener('keydown',e=>{SX.c();if(e.target.tagName=='INPUT'&&e.target.type=='text')return;if(e.key.toLowerCase()=='m')SX.tg()});
+let lwf=0;setInterval(()=>{if(!SX.ctx)return;SX.tk++;const a=SX.ctx,s=cur();
+if(!SX.hg&&SX.on){const o=a.createOscillator(),f=a.createBiquadFilter(),g=a.createGain();o.type='sawtooth';o.frequency.value=48;f.type='lowpass';f.frequency.value=180;g.gain.value=0;o.connect(f);f.connect(g);g.connect(a.destination);o.start();SX.hg=g}
+if(SX.hg){const m=G.mode,v=!SX.on?0:m=='out'?.05:m=='in'?.014:m=='fail'?0:.007;SX.hg.gain.setTargetAtTime(v*SX.vol,a.currentTime,.3)}
+if(G.mode=='in'&&G.wf!=lwf){SX.foot()}lwf=G.wf;
+if(s&&s.k=='met'&&G.mode=='in'&&SX.tk%5==0)SX.siren();
+if(s&&s.k=='met'&&G.mode=='out'&&G.met.some(e=>Math.hypot(e.x-G.sx,e.y-G.sy)<230)&&SX.tk%2==0)SX.t(1500,.08,'square',.05)},260);
 lobby();requestAnimationFrame(loop);
 </script></body></html>
